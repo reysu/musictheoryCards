@@ -1,0 +1,97 @@
+note	C2	C2	C2	C2
+note	C#2	C#2	C#2	C#2
+note	D2	D2	D2	D2
+note	D#2	D#2	D#2	D#2
+note	E2	E2	E2	E2
+note	F2	F2	F2	F2
+note	F#2	F#2	F#2	F#2
+note	G2	G2	G2	G2
+note	G#2	G#2	G#2	G#2
+note	A2	A2	A2	A2
+note	A#2	A#2	A#2	A#2
+note	B2	B2	B2	B2
+note	C3	C3	C3	C3
+note	C#3	C#3	C#3	C#3
+note	D3	D3	D3	D3
+note	D#3	D#3	D#3	D#3
+note	E3	E3	E3	E3
+note	F3	F3	F3	F3
+note	F#3	F#3	F#3	F#3
+note	G3	G3	G3	G3
+note	G#3	G#3	G#3	G#3
+note	A3	A3	A3	A3
+note	A#3	A#3	A#3	A#3
+note	B3	B3	B3	B3
+note	C4	C4	C4	C4
+note	C#4	C#4	C#4	C#4
+note	D4	D4	D4	D4
+note	D#4	D#4	D#4	D#4
+note	E4	E4	E4	E4
+note	F4	F4	F4	F4
+note	F#4	F#4	F#4	F#4
+note	G4	G4	G4	G4
+note	G#4	G#4	G#4	G#4
+note	A4	A4	A4	A4
+note	A#4	A#4	A#4	A#4
+note	B4	B4	B4	B4
+note	C5	C5	C5	C5
+note	C#5	C#5	C#5	C#5
+note	D5	D5	D5	D5
+note	D#5	D#5	D#5	D#5
+note	E5	E5	E5	E5
+note	F5	F5	F5	F5
+note	F#5	F#5	F#5	F#5
+note	G5	G5	G5	G5
+note	G#5	G#5	G#5	G#5
+note	A5	A5	A5	A5
+note	A#5	A#5	A#5	A#5
+note	B5	B5	B5	B5
+note	C6	C6	C6	C6
+note	C#6	C#6	C#6	C#6
+note	D6	D6	D6	D6
+note	D#6	D#6	D#6	D#6
+note	E6	E6	E6	E6
+note	F6	F6	F6	F6
+note	F#6	F#6	F#6	F#6
+note	G6	G6	G6	G6
+note	G#6	G#6	G#6	G#6
+note	A6	A6	A6	A6
+note	A#6	A#6	A#6	A#6
+note	B6	B6	B6	B6
+note	C7	C7	C7	C7
+chord	C major	C4,E4,G4	C4	C,E,G
+chord	C# major	C#4,F4,G#4	C#4	C#,F,G#
+chord	D major	D4,F#4,A4	D4	D,F#,A
+chord	D# major	D#4,G4,A#4	D#4	D#,G,A#
+chord	E major	E4,G#4,B4	E4	E,G#,B
+chord	F major	F4,A4,C5	F4	F,A,C
+chord	F# major	F#4,A#4,C#5	F#4	F#,A#,C#
+chord	G major	G4,B4,D5	G4	G,B,D
+chord	G# major	G#4,C5,D#5	G#4	G#,C,D#
+chord	A major	A4,C#5,E5	A4	A,C#,E
+chord	A# major	A#4,D5,F5	A#4	A#,D,F
+chord	B major	B4,D#5,F#5	B4	B,D#,F#
+chord	C minor	C4,D#4,G4	C4	C,Eb,G
+chord	C# minor	C#4,E4,G#4	C#4	C#,E,G#
+chord	D minor	D4,F4,A4	D4	D,F,A
+chord	D# minor	D#4,F#4,A#4	D#4	D#,F#,A#
+chord	E minor	E4,G4,B4	E4	E,G,B
+chord	F minor	F4,G#4,C5	F4	F,G#,C
+chord	F# minor	F#4,A4,C#5	F#4	F#,A,C#
+chord	G minor	G4,A#4,D5	G4	G,A#,D
+chord	G# minor	G#4,B4,D#5	G#4	G#,B,D#
+chord	A minor	A4,C5,E5	A4	A,C,E
+chord	A# minor	A#4,C#5,F5	A#4	A#,C#,F
+chord	B minor	B4,D5,F#5	B4	B,D,F#
+scale	C major scale	C4,D4,E4,F4,G4,A4,B4,C5	C4	C,D,E,F,G,A,B,C
+scale	G major scale	G4,A4,B4,C5,D5,E5,F#5,G5	G4	G,A,B,C,D,E,F#,G
+scale	D major scale	D4,E4,F#4,G4,A4,B4,C#5,D5	D4	D,E,F#,G,A,B,C#,D
+scale	A major scale	A4,B4,C#5,D5,E5,F#5,G#5,A5	A4	A,B,C#,D,E,F#,G#,A
+scale	E major scale	E4,F#4,G#4,A4,B4,C#5,D#5,E5	E4	E,F#,G#,A,B,C#,D#,E
+scale	B major scale	B3,C#4,D#4,E4,F#4,G#4,A#4,B4	B3	B,C#,D#,E,F#,G#,A#,B
+scale	F major scale	F4,G4,A4,A#4,C5,D5,E5,F5	F4	F,G,A,A#,C,D,E,F
+scale	Bb major scale	A#3,C4,D4,D#4,F4,G4,A4,A#4	A#3	A#,C,D,D#,F,G,A,A#
+scale	Eb major scale	D#4,F4,G4,G#4,A#4,C5,D5,D#5	D#4	D#,F,G,G#,A#,C,D,D#
+scale	Ab major scale	G#3,A#3,C4,C#4,D#4,F4,G4,G#4	G#3	G#,A#,C,C#,D#,F,G,G#
+scale	Db major scale	C#4,D#4,F4,F#4,G#4,A#4,C5,C#5	C#4	C#,D#,F,F#,G#,A#,C,C#
+scale	F# major scale	F#4,G#4,A#4,B4,C#5,D#5,F5,F#5	F#4	F#,G#,A#,B,C#,D#,F,F#

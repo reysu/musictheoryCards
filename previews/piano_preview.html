@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Card Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Nunito, sans-serif;
+  background: #eee;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+body.dark-body { background: #1a1d22; }
+
+h2 { font-size: 14px; color: #999; margin-bottom: 4px; }
+
+.card-frame {
+  background: #FFFAF0;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  --text-primary: #333;
+  --text-secondary: rgba(0,0,0,0.45);
+  --bg-subtle: rgba(0,0,0,0.06);
+  --bg-chip: rgba(0,0,0,0.12);
+  --accent: #4ba9c8;
+  --green: #3a9a5a;
+  --red: #c75050;
+}
+
+.card-frame.dark {
+  background: #333b45;
+  --text-primary: #e6e6e6;
+  --text-secondary: rgba(255,255,255,0.45);
+  --bg-subtle: rgba(255,255,255,0.08);
+  --bg-chip: rgba(255,255,255,0.15);
+  --accent: #4ba9c8;
+  --green: #5db87a;
+  --red: #c75a5a;
+}
+
+.tag { color: var(--text-secondary); font-size: 16px; background-color: var(--bg-subtle); padding: 2px 8px; border-radius: 5px; display: table; margin-bottom: 12px; }
+.piano-prompt { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
+.piano-name { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+
+.answer-section { padding: 24px 16px; border-radius: 10px; margin-top: 14px; text-align: center; cursor: pointer; transition: filter 0.2s ease; }
+.answer-section:hover, .answer-section:active { filter: brightness(1.1); }
+
+@keyframes keyPulse { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+.note-reveal { font-size: 56px; font-weight: 800; animation: keyPulse 0.5s ease-out; }
+
+/* Piano key styles */
+.piano-wrap { overflow-x: auto; margin: 0 -8px; padding: 0 8px; }
+.piano-svg { display: block; }
+.white-key { cursor: pointer; transition: fill 0.1s; }
+.white-key:hover { fill: #e8e8e8; }
+.black-key { cursor: pointer; transition: fill 0.1s; }
+.black-key:hover { fill: #444; }
+.white-key.active { fill: var(--accent) !important; }
+.black-key.active { fill: var(--accent) !important; }
+.white-key.ghost-active { fill: rgba(75,169,200,0.2) !important; }
+.black-key.ghost-active { fill: rgba(75,169,200,0.5) !important; }
+
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.controls label { font-size: 13px; color: #666; }
+.controls select, .controls button { font-family: Nunito; font-size: 13px; padding: 4px 10px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+.controls button { background: #4ba9c8; color: #fff; border: none; }
+
+.mode-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.08); border-radius: 8px; padding: 3px; }
+.mode-tab { font-family: Nunito; font-size: 13px; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; background: transparent; color: #666; font-weight: 600; transition: all 0.15s; }
+.mode-tab.active { background: #4ba9c8; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('recognition')">Recognition</button>
+    <button class="mode-tab" onclick="setMode('recall')">Recall</button>
+  </div>
+  <label>Note: <select id="sel-note"></select></label>
+  <button onclick="render()">Show</button>
+  <button onclick="randomCard()">Random</button>
+  <button onclick="toggleDark()">Dark Mode</button>
+  <label><input type="checkbox" id="show-back" onchange="render()"> Show back</label>
+</div>
+
+<h2>Front</h2>
+<div class="card-frame" id="card-front"></div>
+
+<div id="back-wrapper" style="display:none;">
+<h2>Back</h2>
+<div class="card-frame" id="card-back"></div>
+</div>
+
+<script>
+// ─── Note definitions ───
+var noteOrder = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var isBlack = {'C#':1,'D#':1,'F#':1,'G#':1,'A#':1};
+var midiBase = {'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11};
+
+// Generate all notes for 3 octaves (C3-B5) for cards, but render shows context
+var allNotes = [];
+for (var oct = 1; oct <= 7; oct++) {
+  noteOrder.forEach(function(n) { allNotes.push(n + oct); });
+}
+
+// Populate note selector (C2-C7 range for cards)
+var noteSel = document.getElementById('sel-note');
+for (var oct = 2; oct <= 6; oct++) {
+  noteOrder.forEach(function(n) {
+    var o = document.createElement('option');
+    o.value = n + oct; o.textContent = n + oct;
+    if (n === 'C' && oct === 4) o.selected = true;
+    noteSel.appendChild(o);
+  });
+}
+
+var noteColors = {
+  'C':'#DC4040','C#':'#6A1FCC','D':'#E8C820','D#':'#9898A0',
+  'E':'#6AADBD','F':'#9B1B1B','F#':'#7B2DB8','G':'#E08030',
+  'G#':'#B85EB0','A':'#2E8B57','A#':'#A85A30','B':'#4169E1'
+};
+
+function needsDarkText(hex) {
+  var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return (0.299*r + 0.587*g + 0.114*b) > 160;
+}
+
+var currentMode = 'recognition';
+var isDark = false;
+var recallPlaced = null;
+
+// ─── Audio ───
+function getMidi(noteStr) {
+  var match = noteStr.match(/^([A-G]#?)(\d)$/);
+  if (!match) return 60;
+  return 12 + parseInt(match[2]) * 12 + midiBase[match[1]];
+}
+
+function playNote(noteStr) {
+  try {
+    var ctx = window._audioCtx || (window._audioCtx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var freq = 440 * Math.pow(2, (getMidi(noteStr) - 69) / 12);
+    var now = ctx.currentTime;
+    var g = ctx.createGain(); g.gain.setValueAtTime(0.3, now); g.gain.exponentialRampToValueAtTime(0.001, now + 1.5); g.connect(ctx.destination);
+    var osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, now); osc.connect(g); osc.start(now); osc.stop(now + 1.5);
+    var g2 = ctx.createGain(); g2.gain.setValueAtTime(0.08, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0); g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator(); osc2.type = 'triangle'; osc2.frequency.setValueAtTime(freq * 2, now); osc2.connect(g2); osc2.start(now); osc2.stop(now + 1.0);
+  } catch(e) {}
+}
+
+// ─── Piano SVG renderer ───
+// Shows 3 octaves centered on the target note's octave
+function renderPiano(opts) {
+  opts = opts || {};
+  var targetNote = opts.target || 'C4';
+  var highlight = opts.highlight || null; // note to highlight
+  var showLabel = opts.showLabel || false;
+  var interactive = opts.interactive || false;
+  var placedNote = opts.placedNote || null;
+  var resultNotes = opts.resultNotes || null; // {correct, wrong, missing}
+
+  var match = targetNote.match(/^([A-G]#?)(\d)$/);
+  var targetOct = match ? parseInt(match[2]) : 4;
+
+  // Show 3 octaves centered on target
+  var startOct = Math.max(1, targetOct - 1);
+  var endOct = Math.min(7, startOct + 2);
+  if (endOct - startOct < 2) startOct = Math.max(1, endOct - 2);
+
+  var whiteW = 28, whiteH = 120;
+  var blackW = 18, blackH = 75;
+
+  // Count white keys in range
+  var whiteKeys = [];
+  var allKeys = [];
+  for (var oct = startOct; oct <= endOct; oct++) {
+    noteOrder.forEach(function(n) {
+      var noteStr = n + oct;
+      allKeys.push(noteStr);
+      if (!isBlack[n]) whiteKeys.push(noteStr);
+    });
+  }
+  // Add C of next octave
+  var nextC = 'C' + (endOct + 1);
+  allKeys.push(nextC);
+  whiteKeys.push(nextC);
+
+  var totalW = whiteKeys.length * whiteW;
+  var h = whiteH + 30; // extra space for labels
+
+  var svg = '<svg viewBox="0 0 ' + totalW + ' ' + h + '" class="piano-svg" style="width:100%;max-width:' + totalW + 'px;">';
+
+  // Draw white keys first
+  var wx = 0;
+  var whitePositions = {};
+  whiteKeys.forEach(function(noteStr) {
+    whitePositions[noteStr] = wx;
+    var cls = 'white-key';
+    var fill = '#fff';
+    if (highlight === noteStr) { cls += ' active'; }
+    if (placedNote === noteStr) { cls += ' active'; }
+
+    svg += '<rect class="' + cls + '" x="' + wx + '" y="0" width="' + (whiteW - 1) + '" height="' + whiteH + '" fill="' + fill + '" stroke="var(--text-secondary)" stroke-width="0.5" rx="0 0 3 3" data-note="' + noteStr + '"/>';
+
+    // Octave label on C keys
+    var pitch = noteStr.replace(/\d/, '');
+    var oct = noteStr.replace(/[^0-9]/g, '');
+    if (pitch === 'C') {
+      svg += '<text x="' + (wx + whiteW/2 - 0.5) + '" y="' + (whiteH + 16) + '" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-family="Nunito,sans-serif" opacity="0.5">C' + oct + '</text>';
+    }
+
+    // Label on highlighted key
+    if (showLabel && highlight === noteStr) {
+      svg += '<text x="' + (wx + whiteW/2 - 0.5) + '" y="' + (whiteH - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="var(--accent)" font-family="Nunito,sans-serif">' + pitch + '</text>';
+    }
+
+    wx += whiteW;
+  });
+
+  // Draw black keys on top
+  allKeys.forEach(function(noteStr) {
+    var pitch = noteStr.replace(/\d/, '');
+    if (!isBlack[pitch]) return;
+    var oct = noteStr.replace(/[^0-9]/g, '');
+
+    // Position: black key sits between two white keys
+    // Find the white key before this black key
+    var prevWhite;
+    var noteIdx = noteOrder.indexOf(pitch);
+    var prevPitch = noteOrder[noteIdx - 1];
+    prevWhite = prevPitch + oct;
+
+    if (whitePositions[prevWhite] === undefined) return;
+    var bx = whitePositions[prevWhite] + whiteW - blackW/2 - 0.5;
+
+    var cls = 'black-key';
+    var fill = '#222';
+    if (highlight === noteStr) { cls += ' active'; }
+    if (placedNote === noteStr) { cls += ' active'; }
+
+    svg += '<rect class="' + cls + '" x="' + bx + '" y="0" width="' + blackW + '" height="' + blackH + '" fill="' + fill + '" rx="0 0 2 2" data-note="' + noteStr + '"/>';
+
+    if (showLabel && highlight === noteStr) {
+      svg += '<text x="' + (bx + blackW/2) + '" y="' + (blackH - 8) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + pitch + '</text>';
+    }
+  });
+
+  // Result overlays
+  if (resultNotes) {
+    function overlayKey(noteStr, color) {
+      var pitch = noteStr.replace(/\d/, '');
+      var oct = noteStr.replace(/[^0-9]/g, '');
+      if (isBlack[pitch]) {
+        var prevPitch = noteOrder[noteOrder.indexOf(pitch) - 1];
+        var prevWhite = prevPitch + oct;
+        if (whitePositions[prevWhite] === undefined) return;
+        var bx = whitePositions[prevWhite] + whiteW - blackW/2 - 0.5;
+        svg += '<rect x="' + bx + '" y="0" width="' + blackW + '" height="' + blackH + '" fill="' + color + '" rx="0 0 2 2" opacity="0.7"/>';
+      } else {
+        if (whitePositions[noteStr] === undefined) return;
+        var kx = whitePositions[noteStr];
+        svg += '<rect x="' + kx + '" y="0" width="' + (whiteW - 1) + '" height="' + whiteH + '" fill="' + color + '" rx="0 0 3 3" opacity="0.4"/>';
+      }
+    }
+    if (resultNotes.correct) overlayKey(resultNotes.correct, 'var(--green)');
+    if (resultNotes.wrong) overlayKey(resultNotes.wrong, 'var(--red)');
+    if (resultNotes.missing) {
+      var pitch = resultNotes.missing.replace(/\d/, '');
+      var oct = resultNotes.missing.replace(/[^0-9]/g, '');
+      if (isBlack[pitch]) {
+        var prevPitch = noteOrder[noteOrder.indexOf(pitch) - 1];
+        var prevWhite = prevPitch + oct;
+        if (whitePositions[prevWhite] !== undefined) {
+          var bx = whitePositions[prevWhite] + whiteW - blackW/2 - 0.5;
+          svg += '<rect x="' + bx + '" y="0" width="' + blackW + '" height="' + blackH + '" fill="none" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 2" rx="0 0 2 2"/>';
+        }
+      } else {
+        if (whitePositions[resultNotes.missing] !== undefined) {
+          var kx = whitePositions[resultNotes.missing];
+          svg += '<rect x="' + kx + '" y="0" width="' + (whiteW - 1) + '" height="' + whiteH + '" fill="none" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 2" rx="0 0 3 3"/>';
+        }
+      }
+    }
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ─── Tap handlers ───
+function attachPianoHandlers(container, callback) {
+  container.querySelectorAll('.white-key, .black-key').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var note = el.getAttribute('data-note');
+      if (note && callback) callback(note);
+    });
+    el.addEventListener('mouseenter', function() {
+      el.classList.add('ghost-active');
+    });
+    el.addEventListener('mouseleave', function() {
+      el.classList.remove('ghost-active');
+    });
+  });
+}
+
+// ─── Mode / Render ───
+function setMode(mode) {
+  currentMode = mode;
+  recallPlaced = null;
+  document.querySelectorAll('.mode-tab').forEach(function(el) {
+    el.classList.toggle('active', el.textContent.toLowerCase() === mode);
+  });
+  render();
+}
+
+function render() {
+  var noteStr = document.getElementById('sel-note').value;
+  var showBack = document.getElementById('show-back').checked;
+  var pitchClass = noteStr.replace(/\d/g, '');
+
+  var front = document.getElementById('card-front');
+  var backWrapper = document.getElementById('back-wrapper');
+  var back = document.getElementById('card-back');
+
+  if (currentMode === 'recognition') {
+    front.innerHTML = ''
+      + '<div class="tag">\uD83C\uDFB9 Piano</div>'
+      + '<div class="piano-prompt">What note is this?</div>'
+      + '<div class="piano-wrap">' + renderPiano({ target: noteStr, highlight: noteStr }) + '</div>';
+
+    attachPianoHandlers(front, function(n) { playNote(n); });
+
+    if (showBack) {
+      backWrapper.style.display = '';
+      var color = noteColors[pitchClass] || '#4ba9c8';
+      var dark = needsDarkText(color);
+      var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+      var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+      var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+      back.innerHTML = ''
+        + '<div class="tag">\uD83C\uDFB9 Piano</div>'
+        + '<div class="piano-prompt">What note is this?</div>'
+        + '<div class="piano-wrap">' + renderPiano({ target: noteStr, highlight: noteStr, showLabel: true }) + '</div>'
+        + '<div class="answer-section" id="answer-area" style="background:' + color + ';">'
+        + '<div style="font-size:13px;color:' + subCol + ';margin-bottom:8px;">Note</div>'
+        + '<div class="note-reveal" style="color:' + textCol + ';">' + noteStr + '</div>'
+        + '<div style="font-size:13px;color:' + hintCol + ';margin-top:6px;">\uD83D\uDD0A tap to play</div>'
+        + '</div>';
+
+      document.getElementById('answer-area').onclick = function(e) { e.stopPropagation(); playNote(noteStr); };
+      attachPianoHandlers(back, function(n) { playNote(n); });
+    } else {
+      backWrapper.style.display = 'none';
+    }
+
+  } else {
+    recallPlaced = null;
+    renderRecallFront();
+    if (showBack) { backWrapper.style.display = ''; renderRecallBack(); }
+    else { backWrapper.style.display = 'none'; }
+  }
+
+  applyDark();
+}
+
+function renderRecallFront() {
+  var noteStr = document.getElementById('sel-note').value;
+  var front = document.getElementById('card-front');
+
+  front.innerHTML = ''
+    + '<div class="tag">\uD83C\uDFB9 Piano</div>'
+    + '<div class="piano-prompt">Play this note:</div>'
+    + '<div class="piano-name">' + noteStr + '</div>'
+    + '<div class="piano-wrap">' + renderPiano({ target: noteStr, placedNote: recallPlaced }) + '</div>';
+
+  attachPianoHandlers(front, function(n) {
+    if (recallPlaced === n) { recallPlaced = null; }
+    else { recallPlaced = n; playNote(n); }
+    renderRecallFront();
+    if (document.getElementById('show-back').checked) renderRecallBack();
+  });
+}
+
+function renderRecallBack() {
+  var noteStr = document.getElementById('sel-note').value;
+  var pitchClass = noteStr.replace(/\d/g, '');
+  var back = document.getElementById('card-back');
+  var backWrapper = document.getElementById('back-wrapper');
+  backWrapper.style.display = '';
+
+  var result = {};
+  if (recallPlaced) {
+    if (recallPlaced === noteStr) result.correct = noteStr;
+    else { result.wrong = recallPlaced; result.missing = noteStr; }
+  } else {
+    result.missing = noteStr;
+  }
+
+  var color = noteColors[pitchClass] || '#4ba9c8';
+  var dark = needsDarkText(color);
+  var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+  var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+  var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+  back.innerHTML = ''
+    + '<div class="tag">\uD83C\uDFB9 Piano</div>'
+    + '<div class="piano-prompt">Play this note:</div>'
+    + '<div class="piano-name">' + noteStr + '</div>'
+    + '<div class="piano-wrap">' + renderPiano({ target: noteStr, resultNotes: result }) + '</div>'
+    + '<div class="answer-section" id="recall-answer-area" style="background:' + color + ';">'
+    + '<div style="font-size:13px;color:' + subCol + ';margin-bottom:8px;">Note</div>'
+    + '<div class="note-reveal" style="color:' + textCol + ';">' + noteStr + '</div>'
+    + '<div style="font-size:13px;color:' + hintCol + ';margin-top:6px;">\uD83D\uDD0A tap to play</div>'
+    + '</div>';
+
+  document.getElementById('recall-answer-area').onclick = function(e) { e.stopPropagation(); playNote(noteStr); };
+  attachPianoHandlers(back, function(n) { playNote(n); });
+  applyDark();
+}
+
+function randomCard() {
+  recallPlaced = null;
+  var options = noteSel.options;
+  noteSel.selectedIndex = Math.floor(Math.random() * options.length);
+  render();
+}
+
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark-body', isDark);
+  applyDark();
+}
+
+function applyDark() {
+  document.querySelectorAll('.card-frame').forEach(function(el) { el.classList.toggle('dark', isDark); });
+}
+
+render();
+</script>
+</body>
+</html>

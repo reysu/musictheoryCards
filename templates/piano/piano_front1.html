@@ -1,0 +1,124 @@
+<div class="tag">🎹 Piano</div>
+<div class="piano-prompt">What note is this?</div>
+<div class="piano-wrap" id="piano-front"></div>
+
+<script>
+var PK = window.PK || {};
+PK.noteOrder = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+PK.isBlack = {'C#':1,'D#':1,'F#':1,'G#':1,'A#':1};
+PK.midiBase = {'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11};
+
+PK.getMidi = function(noteStr) {
+  var m = noteStr.match(/^([A-G]#?)(\d)$/);
+  return m ? 12 + parseInt(m[2]) * 12 + PK.midiBase[m[1]] : 60;
+};
+
+PK.playNote = function(noteStr) {
+  try {
+    var ctx = PK.ctx || (PK.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var freq = 440 * Math.pow(2, (PK.getMidi(noteStr) - 69) / 12);
+    var now = ctx.currentTime;
+    var g = ctx.createGain(); g.gain.setValueAtTime(0.3, now); g.gain.exponentialRampToValueAtTime(0.001, now + 1.5); g.connect(ctx.destination);
+    var osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, now); osc.connect(g); osc.start(now); osc.stop(now + 1.5);
+    var g2 = ctx.createGain(); g2.gain.setValueAtTime(0.08, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0); g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator(); osc2.type = 'triangle'; osc2.frequency.setValueAtTime(freq * 2, now); osc2.connect(g2); osc2.start(now); osc2.stop(now + 1.0);
+  } catch(e) {}
+};
+
+PK.parseKeys = function(str) { return str ? str.split(',').map(function(s){return s.trim();}) : []; };
+
+PK.renderPiano = function(opts) {
+  opts = opts || {};
+  var keys = opts.keys || [];
+  var showLabel = opts.showLabel || false;
+  var placedKeys = opts.placedKeys || [];
+  var resultKeys = opts.resultKeys || null;
+
+  var targetOct = 4;
+  if (keys.length > 0) {
+    var m = keys[0].match(/(\d)/);
+    if (m) targetOct = parseInt(m[1]);
+  }
+
+  var startOct = Math.max(1, targetOct - 1);
+  var endOct = Math.min(7, startOct + 2);
+  if (endOct - startOct < 2) startOct = Math.max(1, endOct - 2);
+
+  var whiteW = 28, whiteH = 120, blackW = 18, blackH = 75;
+  var whiteKeys = [], allKeys = [];
+  for (var oct = startOct; oct <= endOct; oct++) {
+    PK.noteOrder.forEach(function(n) { var ns = n+oct; allKeys.push(ns); if (!PK.isBlack[n]) whiteKeys.push(ns); });
+  }
+  var nextC = 'C'+(endOct+1); allKeys.push(nextC); whiteKeys.push(nextC);
+
+  var totalW = whiteKeys.length * whiteW;
+  var h = whiteH + 30;
+  var highlightSet = {}; keys.forEach(function(k){highlightSet[k]=1;});
+  var placedSet = {}; placedKeys.forEach(function(k){placedSet[k]=1;});
+
+  var svg = '<svg viewBox="0 0 '+totalW+' '+h+'" style="width:100%;max-width:'+totalW+'px;">';
+
+  var wx = 0, whitePos = {};
+  whiteKeys.forEach(function(ns) {
+    whitePos[ns] = wx;
+    var cls = 'white-key' + (highlightSet[ns] || placedSet[ns] ? ' active' : '');
+    svg += '<rect class="'+cls+'" x="'+wx+'" y="0" width="'+(whiteW-1)+'" height="'+whiteH+'" fill="#fff" stroke="var(--text-secondary)" stroke-width="0.5" data-note="'+ns+'"/>';
+    var pitch = ns.replace(/\d/,''), oct = ns.replace(/\D/g,'');
+    if (pitch === 'C') svg += '<text x="'+(wx+whiteW/2-0.5)+'" y="'+(whiteH+16)+'" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-family="Nunito,sans-serif" opacity="0.5">C'+oct+'</text>';
+    if (showLabel && highlightSet[ns]) svg += '<text x="'+(wx+whiteW/2-0.5)+'" y="'+(whiteH-8)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--accent)" font-family="Nunito,sans-serif">'+pitch+'</text>';
+    wx += whiteW;
+  });
+
+  allKeys.forEach(function(ns) {
+    var pitch = ns.replace(/\d/,'');
+    if (!PK.isBlack[pitch]) return;
+    var oct = ns.replace(/\D/g,'');
+    var prevPitch = PK.noteOrder[PK.noteOrder.indexOf(pitch)-1];
+    var prevWhite = prevPitch + oct;
+    if (whitePos[prevWhite] === undefined) return;
+    var bx = whitePos[prevWhite] + whiteW - blackW/2 - 0.5;
+    var cls = 'black-key' + (highlightSet[ns] || placedSet[ns] ? ' active' : '');
+    svg += '<rect class="'+cls+'" x="'+bx+'" y="0" width="'+blackW+'" height="'+blackH+'" fill="#222" rx="0 0 2 2" data-note="'+ns+'"/>';
+    if (showLabel && highlightSet[ns]) svg += '<text x="'+(bx+blackW/2)+'" y="'+(blackH-8)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">'+pitch+'</text>';
+  });
+
+  if (resultKeys) {
+    function overlay(ns, color, dashed) {
+      var pitch = ns.replace(/\d/,''), oct = ns.replace(/\D/g,'');
+      if (PK.isBlack[pitch]) {
+        var prev = PK.noteOrder[PK.noteOrder.indexOf(pitch)-1]+oct;
+        if (whitePos[prev]===undefined) return;
+        var bx = whitePos[prev]+whiteW-blackW/2-0.5;
+        if (dashed) svg += '<rect x="'+bx+'" y="0" width="'+blackW+'" height="'+blackH+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-dasharray="4 2" rx="0 0 2 2"/>';
+        else svg += '<rect x="'+bx+'" y="0" width="'+blackW+'" height="'+blackH+'" fill="'+color+'" rx="0 0 2 2" opacity="0.7"/>';
+      } else {
+        if (whitePos[ns]===undefined) return;
+        if (dashed) svg += '<rect x="'+whitePos[ns]+'" y="0" width="'+(whiteW-1)+'" height="'+whiteH+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-dasharray="4 2" rx="0 0 3 3"/>';
+        else svg += '<rect x="'+whitePos[ns]+'" y="0" width="'+(whiteW-1)+'" height="'+whiteH+'" fill="'+color+'" rx="0 0 3 3" opacity="0.4"/>';
+      }
+    }
+    if (resultKeys.correct) resultKeys.correct.forEach(function(k){overlay(k,'var(--green)',false);});
+    if (resultKeys.wrong) resultKeys.wrong.forEach(function(k){overlay(k,'var(--red)',false);});
+    if (resultKeys.missing) resultKeys.missing.forEach(function(k){overlay(k,'var(--red)',true);});
+  }
+
+  svg += '</svg>';
+  return svg;
+};
+
+(function() {
+  var keysStr = '{{Keys}}';
+  var keys = PK.parseKeys(keysStr);
+  var container = document.getElementById('piano-front');
+  container.innerHTML = PK.renderPiano({ keys: keys });
+
+  container.querySelectorAll('.white-key, .black-key').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var n = el.getAttribute('data-note');
+      if (n) PK.playNote(n);
+    });
+  });
+})();
+</script>

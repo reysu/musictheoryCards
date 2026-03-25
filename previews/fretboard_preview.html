@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fretboard Card Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Nunito, sans-serif;
+  background: #eee;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+body.dark-body { background: #1a1d22; }
+
+h2 { font-size: 14px; color: #999; margin-bottom: 4px; }
+
+.card-frame {
+  background: #FFFAF0;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  --text-primary: #333;
+  --text-secondary: rgba(0,0,0,0.45);
+  --bg-subtle: rgba(0,0,0,0.06);
+  --bg-chip: rgba(0,0,0,0.12);
+  --accent: #4ba9c8;
+  --green: #3a9a5a;
+  --red: #c75050;
+}
+
+.card-frame.dark {
+  background: #333b45;
+  --text-primary: #e6e6e6;
+  --text-secondary: rgba(255,255,255,0.45);
+  --bg-subtle: rgba(255,255,255,0.08);
+  --bg-chip: rgba(255,255,255,0.15);
+  --accent: #4ba9c8;
+  --green: #5db87a;
+  --red: #c75a5a;
+}
+
+.tag {
+  color: var(--text-secondary);
+  font-size: 16px;
+  background-color: var(--bg-subtle);
+  padding: 2px 8px;
+  border-radius: 5px;
+  display: table;
+  margin-bottom: 12px;
+}
+
+.fretboard-prompt {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.fretboard-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.answer-section {
+  padding: 14px 16px;
+  background: var(--bg-subtle);
+  border-radius: 10px;
+  margin-top: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.answer-section:hover, .answer-section:active {
+  filter: brightness(1.1);
+}
+
+@keyframes keyPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.note-reveal {
+  font-size: 56px;
+  font-weight: 800;
+  color: #fff;
+  animation: keyPulse 0.5s ease-out;
+}
+
+.note-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 8px;
+}
+
+.note-detail-colored {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+
+.tap-hint {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 6px;
+}
+
+.note-answer {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.note-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.shape-info {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.replay-btn {
+  display: inline-block;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  user-select: none;
+  margin-top: 8px;
+  padding: 4px 12px;
+  background: var(--bg-subtle);
+  border-radius: 6px;
+}
+.replay-btn:hover { opacity: 0.7; }
+
+.recall-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  opacity: 0.5;
+}
+
+.recall-action-btn {
+  font-family: Nunito, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  min-height: 36px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.recall-action-btn:active { opacity: 0.6; }
+
+.dot-correct { fill: var(--green); }
+.dot-wrong { fill: var(--red); }
+.dot-missing { fill: none; stroke: var(--red); stroke-width: 2; stroke-dasharray: 4 2; }
+
+.tap-zone { cursor: pointer; }
+.ghost-group { opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+.tap-zone:hover + .ghost-group { opacity: 0.25; }
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.controls label { font-size: 13px; color: #666; }
+.controls select, .controls button {
+  font-family: Nunito; font-size: 13px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid #ccc; background: #fff; cursor: pointer;
+}
+.controls button { background: #4ba9c8; color: #fff; border: none; }
+
+.mode-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 8px;
+  padding: 3px;
+}
+.mode-tab {
+  font-family: Nunito; font-size: 13px; padding: 6px 14px; border-radius: 6px;
+  border: none; cursor: pointer; background: transparent; color: #666;
+  font-weight: 600; transition: all 0.15s;
+}
+.mode-tab.active { background: #4ba9c8; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('recognition')">Recognition</button>
+    <button class="mode-tab" onclick="setMode('recall')">Recall</button>
+  </div>
+  <label>String: <select id="sel-string">
+    <option value="1">1 (high E)</option>
+    <option value="2">2 (B)</option>
+    <option value="3" selected>3 (G)</option>
+    <option value="4">4 (D)</option>
+    <option value="5">5 (A)</option>
+    <option value="6">6 (low E)</option>
+  </select></label>
+  <label>Fret: <select id="sel-fret"></select></label>
+  <button onclick="render()">Show</button>
+  <button onclick="randomCard()">Random</button>
+  <button onclick="toggleDark()">Dark Mode</button>
+  <label><input type="checkbox" id="show-back" onchange="render()"> Show back</label>
+</div>
+
+<h2>Front</h2>
+<div class="card-frame" id="card-front"></div>
+
+<div id="back-wrapper" style="display:none;">
+<h2>Back</h2>
+<div class="card-frame" id="card-back"></div>
+</div>
+
+<script>
+var fretSel = document.getElementById('sel-fret');
+for (var i = 0; i <= 12; i++) {
+  var o = document.createElement('option'); o.value = i; o.textContent = i;
+  if (i === 5) o.selected = true;
+  fretSel.appendChild(o);
+}
+
+var stringNames = ['E','B','G','D','A','E'];
+var tuning = [64, 59, 55, 50, 45, 40];
+var noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var currentMode = 'recognition';
+var isDark = false;
+var recallPlaced = [];
+
+var noteColors = {
+  'C':'#DC4040', 'C#':'#6A1FCC', 'D':'#E8C820', 'D#':'#9898A0',
+  'E':'#6AADBD', 'F':'#9B1B1B', 'F#':'#7B2DB8', 'G':'#E08030',
+  'G#':'#B85EB0', 'A':'#2E8B57', 'A#':'#A85A30', 'B':'#4169E1'
+};
+
+function needsDarkText(hex) {
+  var r = parseInt(hex.slice(1,3), 16);
+  var g = parseInt(hex.slice(3,5), 16);
+  var b = parseInt(hex.slice(5,7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
+}
+
+function getNoteName(string, fret) {
+  var midi = tuning[string - 1] + fret;
+  return noteNames[midi % 12];
+}
+
+function playNote(string, fret) {
+  try {
+    var ctx = window._audioCtx || (window._audioCtx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var midi = tuning[string - 1] + fret;
+    var freq = 440 * Math.pow(2, (midi - 69) / 12);
+    var now = ctx.currentTime;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    g.connect(ctx.destination);
+    var osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.connect(g);
+    osc.start(now);
+    osc.stop(now + 1.5);
+    var g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.08, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(freq * 2, now);
+    osc2.connect(g2);
+    osc2.start(now);
+    osc2.stop(now + 1.0);
+  } catch(e) {}
+}
+
+// Interval color mapping
+var intervalColors = {
+  '1':'#4ba9c8', 'R':'#4ba9c8',
+  '2':'#7a8a96', '9':'#7a8a96',
+  'b2':'#7a8a96', 'b9':'#7a8a96',
+  '3':'#e8a030', '#9':'#e8a030',
+  'b3':'#c87a30',
+  '4':'#5a8abf', '11':'#5a8abf',
+  '#4':'#9b59b6', 'b5':'#9b59b6', '#11':'#9b59b6',
+  '5':'#3a9a5a',
+  '#5':'#6A1FCC', 'b6':'#6A1FCC', 'b13':'#6A1FCC',
+  '6':'#2E8B57', '13':'#2E8B57',
+  '7':'#9b59b6', 'maj7':'#9b59b6',
+  'b7':'#c75050'
+};
+
+function getIntervalColor(interval) {
+  return intervalColors[interval] || 'var(--accent)';
+}
+
+function renderFretboard(opts) {
+  opts = opts || {};
+  var dots = opts.dots || [];
+  var root = opts.root || null;
+  var labels = opts.labels || null;
+  var intervals = opts.intervals || null; // array of interval strings: "1","b3","5","b7"
+  var showLabels = opts.showLabels || false;
+  var interactive = opts.interactive || false;
+  var resultDots = opts.resultDots || null;
+
+  var numStrings = 6, numFrets = 12;
+  var w = 540, h = 150;
+  var labelW = 24, nutX = labelW + 24, nutW = 4;
+  var fretStart = nutX + nutW + 2;
+  var fretW = (w - fretStart) / numFrets;
+  var stringGap = h / (numStrings + 1);
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;max-width:540px;">';
+
+  // Nut
+  svg += '<rect x="' + nutX + '" y="' + (stringGap * 0.7) + '" width="' + nutW + '" height="' + (stringGap * numStrings - stringGap * 0.4) + '" fill="var(--text-primary)" rx="1" opacity="0.6"/>';
+
+  // Fret wires
+  for (var f = 1; f <= numFrets; f++) {
+    var x = fretStart + fretW * f;
+    svg += '<line x1="' + x + '" y1="' + (stringGap * 0.7) + '" x2="' + x + '" y2="' + (stringGap * numStrings + stringGap * 0.3) + '" stroke="var(--text-secondary)" stroke-width="1" opacity="0.3"/>';
+  }
+
+  // Fret numbers
+  for (var f = 1; f <= numFrets; f++) {
+    var x = fretStart + fretW * (f - 0.5);
+    svg += '<text x="' + x + '" y="' + (h - 2) + '" text-anchor="middle" font-size="8" fill="var(--text-secondary)" font-family="Nunito,sans-serif" opacity="0.5">' + f + '</text>';
+  }
+
+  // Dot markers
+  var markers = [3, 5, 7, 9];
+  var midY = (stringGap * 3 + stringGap * 4) / 2;
+  markers.forEach(function(d) {
+    var x = fretStart + fretW * (d - 0.5);
+    svg += '<circle cx="' + x + '" cy="' + midY + '" r="3.5" fill="var(--text-secondary)" opacity="0.15"/>';
+  });
+  var x12 = fretStart + fretW * 11.5;
+  svg += '<circle cx="' + x12 + '" cy="' + (midY - 10) + '" r="3.5" fill="var(--text-secondary)" opacity="0.15"/>';
+  svg += '<circle cx="' + x12 + '" cy="' + (midY + 10) + '" r="3.5" fill="var(--text-secondary)" opacity="0.15"/>';
+
+  // Strings
+  for (var s = 1; s <= numStrings; s++) {
+    var y = stringGap * s;
+    var thickness = 0.6 + (s * 0.25);
+    svg += '<line x1="' + nutX + '" y1="' + y + '" x2="' + w + '" y2="' + y + '" stroke="var(--text-primary)" stroke-width="' + thickness + '" opacity="0.3"/>';
+  }
+
+  // String labels
+  for (var s = 1; s <= numStrings; s++) {
+    var y = stringGap * s;
+    svg += '<text x="' + (labelW * 0.5) + '" y="' + (y + 3.5) + '" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-family="Nunito,sans-serif" opacity="0.5">' + stringNames[s-1] + '</text>';
+  }
+
+  // Dots
+  if (dots && dots.length > 0) {
+    dots.forEach(function(d, i) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 + 14 : fretStart + fretW * (d.f - 0.5);
+      var isRoot = root && root.s === d.s && root.f === d.f;
+      var hasIntervals = intervals && intervals[i];
+      var noteName = noteAt(d.s, d.f);
+      var dotColor = noteColors[noteName] || 'var(--accent)';
+      var r = 10;
+
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + dotColor + '"/>';
+      if (isRoot) {
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r + 4) + '" fill="none" stroke="' + dotColor + '" stroke-width="1.5" opacity="0.5"/>';
+      }
+
+      if (!showLabels && !hasIntervals && dots.length === 1) {
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + dotColor + '" stroke-width="2" opacity="0.4">';
+        svg += '<animate attributeName="r" from="' + r + '" to="' + (r + 10) + '" dur="2s" repeatCount="indefinite"/>';
+        svg += '<animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/>';
+        svg += '</circle>';
+      }
+
+      // Show interval label (priority) or note name label
+      if (showLabels && hasIntervals) {
+        svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + intervals[i] + '</text>';
+      } else if (showLabels && labels && labels[i]) {
+        svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + labels[i] + '</text>';
+      } else if (hasIntervals && !showLabels) {
+        // On front side, still show intervals if available (helps learning)
+        svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + intervals[i] + '</text>';
+      }
+
+      if (isRoot && !showLabels && !hasIntervals) {
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r - 3) + '" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5"/>';
+      }
+    });
+  }
+
+  // Result overlay
+  if (resultDots) {
+    if (resultDots.correct) resultDots.correct.forEach(function(d) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 + 14 : fretStart + fretW * (d.f - 0.5);
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="10" class="dot-correct"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Nunito,sans-serif">\u2713</text>';
+    });
+    if (resultDots.wrong) resultDots.wrong.forEach(function(d) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 + 14 : fretStart + fretW * (d.f - 0.5);
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="10" class="dot-wrong"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Nunito,sans-serif">\u2717</text>';
+    });
+    if (resultDots.missing) resultDots.missing.forEach(function(d) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 + 14 : fretStart + fretW * (d.f - 0.5);
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="10" class="dot-missing"/>';
+    });
+  }
+
+  // Tap zones — rendered last so they sit on top of dots
+  for (var s = 1; s <= numStrings; s++) {
+    for (var f = 0; f <= numFrets; f++) {
+      var cy = stringGap * s;
+      var cx = f === 0 ? (labelW + nutX) / 2 + 14 : fretStart + fretW * (f - 0.5);
+      svg += '<circle class="tap-zone" cx="' + cx + '" cy="' + cy + '" r="' + (fretW * 0.4) + '" fill="transparent" data-s="' + s + '" data-f="' + f + '"/>';
+      svg += '<g class="ghost-group"><circle cx="' + cx + '" cy="' + cy + '" r="6" fill="var(--accent)"/></g>';
+    }
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
+// Attach click-to-play handlers on all tap zones within a container
+function attachAudioTapHandlers(container) {
+  container.querySelectorAll('.tap-zone').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var s = parseInt(el.getAttribute('data-s'));
+      var f = parseInt(el.getAttribute('data-f'));
+      playNote(s, f);
+    });
+  });
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  recallPlaced = [];
+  document.querySelectorAll('.mode-tab').forEach(function(el) {
+    el.classList.toggle('active', el.textContent.toLowerCase() === mode);
+  });
+  render();
+}
+
+function render() {
+  var string = parseInt(document.getElementById('sel-string').value);
+  var fret = parseInt(document.getElementById('sel-fret').value);
+  var showBack = document.getElementById('show-back').checked;
+  var note = getNoteName(string, fret);
+  var dot = { s: string, f: fret };
+
+  var front = document.getElementById('card-front');
+  var backWrapper = document.getElementById('back-wrapper');
+  var back = document.getElementById('card-back');
+
+  if (currentMode === 'recognition') {
+    // ─── Recognition Front ───
+    front.innerHTML = ''
+      + '<div class="tag">\uD83C\uDFB8 Fretboard</div>'
+      + '<div class="fretboard-prompt">What note is this?</div>'
+      + renderFretboard({ dots: [dot] });
+
+    attachAudioTapHandlers(front);
+
+    // ─── Recognition Back ───
+    if (showBack) {
+      backWrapper.style.display = '';
+      var color = noteColors[note] || '#4ba9c8';
+      var dark = needsDarkText(color);
+      var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+      var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+      var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+      back.innerHTML = ''
+        + '<div class="tag">\uD83C\uDFB8 Fretboard</div>'
+        + '<div class="fretboard-prompt">What note is this?</div>'
+        + renderFretboard({ dots: [dot], labels: [note], showLabels: true })
+        + '<div class="answer-section" id="answer-area" style="background:' + color + ';cursor:pointer;text-align:center;padding:24px;">'
+        + '<div class="note-label" style="color:' + subCol + ';">Note</div>'
+        + '<div class="note-reveal" style="color:' + textCol + ';">' + note + '</div>'
+        + '<div style="font-size:13px;color:' + subCol + ';margin-top:4px;">String ' + string + ' \u00B7 Fret ' + fret + '</div>'
+        + '<div style="font-size:13px;color:' + hintCol + ';margin-top:6px;">\uD83D\uDD0A tap to play</div>'
+        + '</div>';
+
+      document.getElementById('answer-area').onclick = function(e) {
+        e.stopPropagation();
+        playNote(string, fret);
+      };
+      attachAudioTapHandlers(back);
+    } else {
+      backWrapper.style.display = 'none';
+    }
+
+  } else {
+    // ─── Recall Front ───
+    renderRecallFront(string, fret, note);
+
+    // ─── Recall Back ───
+    if (showBack) {
+      backWrapper.style.display = '';
+      renderRecallBack(string, fret, note);
+    } else {
+      backWrapper.style.display = 'none';
+    }
+  }
+
+  applyDark();
+}
+
+function renderRecallFront(string, fret, note) {
+  var front = document.getElementById('card-front');
+  front.innerHTML = ''
+    + '<div class="tag">\uD83C\uDFB8 Fretboard</div>'
+    + '<div class="fretboard-prompt">Place the note on the fretboard:</div>'
+    + '<div class="fretboard-name">' + note + ' on String ' + string + '</div>'
+    + '<div id="recall-fb">' + renderFretboard({ dots: recallPlaced, interactive: true }) + '</div>'
+  front.onclick = null;
+  attachTapHandlers();
+}
+
+function attachTapHandlers() {
+  document.querySelectorAll('#recall-fb .tap-zone').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var s = parseInt(el.getAttribute('data-s'));
+      var f = parseInt(el.getAttribute('data-f'));
+      // Toggle
+      var idx = -1;
+      recallPlaced.forEach(function(d, i) { if (d.s === s && d.f === f) idx = i; });
+      if (idx >= 0) {
+        recallPlaced.splice(idx, 1);
+      } else {
+        recallPlaced.push({ s: s, f: f });
+        playNote(s, f);
+      }
+      document.getElementById('recall-fb').innerHTML = renderFretboard({ dots: recallPlaced, interactive: true });
+      attachTapHandlers();
+    });
+  });
+}
+
+function renderRecallBack(string, fret, note) {
+  var back = document.getElementById('card-back');
+  var correctDot = { s: string, f: fret };
+  var correctKey = string + '-' + fret;
+
+  var correct = [], wrong = [], missing = [];
+  var placedSet = {};
+  recallPlaced.forEach(function(d) {
+    var k = d.s + '-' + d.f;
+    placedSet[k] = true;
+    if (k === correctKey) correct.push(d);
+    else wrong.push(d);
+  });
+  if (!placedSet[correctKey]) missing.push(correctDot);
+
+  var isCorrect = correct.length === 1 && wrong.length === 0;
+
+  var color = noteColors[note] || '#4ba9c8';
+  var dark = needsDarkText(color);
+  var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+  var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+  var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+  back.innerHTML = ''
+    + '<div class="tag">\uD83C\uDFB8 Fretboard</div>'
+    + '<div class="fretboard-prompt">Place the note on the fretboard:</div>'
+    + '<div class="fretboard-name">' + note + ' on String ' + string + '</div>'
+    + renderFretboard({ resultDots: { correct: correct, wrong: wrong, missing: missing } })
+    + '<div class="answer-section" id="recall-answer-area" style="background:' + color + ';cursor:pointer;text-align:center;padding:24px;">'
+    + '<div class="note-label" style="color:' + subCol + ';">Note</div>'
+    + '<div class="note-reveal" style="color:' + textCol + ';">' + note + '</div>'
+    + '<div style="font-size:13px;color:' + subCol + ';margin-top:4px;">String ' + string + ' \u00B7 Fret ' + fret + '</div>'
+    + '<div style="font-size:13px;color:' + hintCol + ';margin-top:6px;">\uD83D\uDD0A tap to play</div>'
+    + '</div>';
+
+  document.getElementById('recall-answer-area').onclick = function(e) {
+    e.stopPropagation();
+    playNote(string, fret);
+  };
+}
+
+function randomCard() {
+  recallPlaced = [];
+  document.getElementById('sel-string').value = Math.floor(Math.random() * 6) + 1;
+  document.getElementById('sel-fret').value = Math.floor(Math.random() * 13);
+  render();
+}
+
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark-body', isDark);
+  applyDark();
+}
+
+function applyDark() {
+  document.querySelectorAll('.card-frame').forEach(function(el) {
+    el.classList.toggle('dark', isDark);
+  });
+}
+
+render();
+</script>
+</body>
+</html>

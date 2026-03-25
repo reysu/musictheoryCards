@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sheet Music Card Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Nunito, sans-serif;
+  background: #eee;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+body.dark-body { background: #1a1d22; }
+
+h2 { font-size: 14px; color: #999; margin-bottom: 4px; }
+
+.card-frame {
+  background: #FFFAF0;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  --text-primary: #333;
+  --text-secondary: rgba(0,0,0,0.45);
+  --bg-subtle: rgba(0,0,0,0.06);
+  --bg-chip: rgba(0,0,0,0.12);
+  --accent: #4ba9c8;
+  --green: #3a9a5a;
+  --red: #c75050;
+  --staff-line: rgba(0,0,0,0.35);
+  --staff-text: rgba(0,0,0,0.5);
+}
+
+.card-frame.dark {
+  background: #333b45;
+  --text-primary: #e6e6e6;
+  --text-secondary: rgba(255,255,255,0.45);
+  --bg-subtle: rgba(255,255,255,0.08);
+  --bg-chip: rgba(255,255,255,0.15);
+  --accent: #4ba9c8;
+  --green: #5db87a;
+  --red: #c75a5a;
+  --staff-line: rgba(255,255,255,0.3);
+  --staff-text: rgba(255,255,255,0.45);
+}
+
+.tag {
+  color: var(--text-secondary);
+  font-size: 16px;
+  background-color: var(--bg-subtle);
+  padding: 2px 8px;
+  border-radius: 5px;
+  display: table;
+  margin-bottom: 12px;
+}
+
+.staff-prompt {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.staff-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.answer-section {
+  padding: 24px 16px;
+  border-radius: 10px;
+  margin-top: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.answer-section:hover, .answer-section:active {
+  filter: brightness(1.1);
+}
+
+@keyframes keyPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.note-reveal {
+  font-size: 56px;
+  font-weight: 800;
+  animation: keyPulse 0.5s ease-out;
+}
+
+.tap-zone { cursor: pointer; }
+.ghost-group { opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+.tap-zone:hover + .ghost-group { opacity: 0.25; }
+
+.dot-correct { fill: var(--green); }
+.dot-wrong { fill: var(--red); }
+.dot-missing { fill: none; stroke: var(--red); stroke-width: 2; stroke-dasharray: 4 2; }
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.controls label { font-size: 13px; color: #666; }
+.controls select, .controls button {
+  font-family: Nunito; font-size: 13px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid #ccc; background: #fff; cursor: pointer;
+}
+.controls button { background: #4ba9c8; color: #fff; border: none; }
+
+.mode-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 8px;
+  padding: 3px;
+}
+.mode-tab {
+  font-family: Nunito; font-size: 13px; padding: 6px 14px; border-radius: 6px;
+  border: none; cursor: pointer; background: transparent; color: #666;
+  font-weight: 600; transition: all 0.15s;
+}
+.mode-tab.active { background: #4ba9c8; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('recognition')">Recognition</button>
+    <button class="mode-tab" onclick="setMode('recall')">Recall</button>
+  </div>
+  <label>Clef: <select id="sel-clef">
+    <option value="treble">Treble</option>
+    <option value="bass">Bass</option>
+  </select></label>
+  <label>Note: <select id="sel-note"></select></label>
+  <button onclick="render()">Show</button>
+  <button onclick="randomCard()">Random</button>
+  <button onclick="toggleDark()">Dark Mode</button>
+  <label><input type="checkbox" id="show-back" onchange="render()"> Show back</label>
+</div>
+
+<h2>Front</h2>
+<div class="card-frame" id="card-front"></div>
+
+<div id="back-wrapper" style="display:none;">
+<h2>Back</h2>
+<div class="card-frame" id="card-back"></div>
+</div>
+
+<script>
+// ─── Note data ───
+var trebleNotes = [
+  'C4','D4','E4','F4','G4','A4','B4',
+  'C5','D5','E5','F5','G5'
+];
+var bassNotes = [
+  'B1','C2','D2','E2','F2','G2','A2','B2',
+  'C3','D3','E3','F3','G3','A3','B3',
+  'C4','D4'
+];
+
+var noteSel = document.getElementById('sel-note');
+function populateNotes() {
+  var clef = document.getElementById('sel-clef').value;
+  var notes = clef === 'treble' ? trebleNotes : bassNotes;
+  noteSel.innerHTML = '';
+  notes.forEach(function(n) {
+    var o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    noteSel.appendChild(o);
+  });
+}
+document.getElementById('sel-clef').addEventListener('change', function() {
+  populateNotes();
+  render();
+});
+populateNotes();
+
+var noteColors = {
+  'C':'#DC4040', 'C#':'#6A1FCC', 'D':'#E8C820', 'D#':'#9898A0',
+  'E':'#6AADBD', 'F':'#9B1B1B', 'F#':'#7B2DB8', 'G':'#E08030',
+  'G#':'#B85EB0', 'A':'#2E8B57', 'A#':'#A85A30', 'B':'#4169E1'
+};
+
+function needsDarkText(hex) {
+  var r = parseInt(hex.slice(1,3), 16);
+  var g = parseInt(hex.slice(3,5), 16);
+  var b = parseInt(hex.slice(5,7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
+}
+
+var currentMode = 'recognition';
+var isDark = false;
+var recallPlaced = null; // staff position index or null
+
+// ─── MIDI / Audio ───
+var noteToMidi = {};
+var baseNotes = ['C','D','E','F','G','A','B'];
+var midiBase = { 'C':0,'D':2,'E':4,'F':5,'G':7,'A':9,'B':11 };
+for (var oct = 0; oct <= 8; oct++) {
+  baseNotes.forEach(function(n) {
+    noteToMidi[n + oct] = 12 + oct * 12 + midiBase[n];
+  });
+}
+
+function getMidi(noteStr) {
+  return noteToMidi[noteStr] || 60;
+}
+
+function playNote(noteStr) {
+  try {
+    var ctx = window._audioCtx || (window._audioCtx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var midi = getMidi(noteStr);
+    var freq = 440 * Math.pow(2, (midi - 69) / 12);
+    var now = ctx.currentTime;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    g.connect(ctx.destination);
+    var osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.connect(g);
+    osc.start(now);
+    osc.stop(now + 1.5);
+    var g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.08, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(freq * 2, now);
+    osc2.connect(g2);
+    osc2.start(now);
+    osc2.stop(now + 1.0);
+  } catch(e) {}
+}
+
+// ─── Staff position mapping ───
+// Each position is a half-step on the staff (line or space)
+// Treble clef: bottom line (E4) = position 0, spaces/lines go up
+// Bass clef: bottom line (G2) = position 0
+// Position 0 = bottom line, 1 = first space, 2 = second line, etc.
+
+// Map note name to staff position
+var treblePositions = {
+  'C4':-2, 'D4':-1, 'E4':0, 'F4':1, 'G4':2, 'A4':3, 'B4':4,
+  'C5':5, 'D5':6, 'E5':7, 'F5':8, 'G5':9, 'A5':10, 'B5':11
+};
+
+var bassPositions = {
+  'B1':-4, 'C2':-3, 'D2':-2, 'E2':-1, 'F2':0, 'G2':1, 'A2':2, 'B2':3,
+  'C3':4, 'D3':5, 'E3':6, 'F3':7, 'G3':8, 'A3':9, 'B3':10,
+  'C4':11, 'D4':12
+};
+
+function getStaffPos(noteStr, clef) {
+  if (clef === 'treble') return treblePositions[noteStr];
+  return bassPositions[noteStr];
+}
+
+// Reverse: staff position to note name
+var treblePosToNote = {};
+var bassPosToNote = {};
+Object.keys(treblePositions).forEach(function(k) { treblePosToNote[treblePositions[k]] = k; });
+Object.keys(bassPositions).forEach(function(k) { bassPosToNote[bassPositions[k]] = k; });
+
+function posToNote(pos, clef) {
+  if (clef === 'treble') return treblePosToNote[pos];
+  return bassPosToNote[pos];
+}
+
+// ─── SVG Staff Renderer ───
+function renderStaff(opts) {
+  opts = opts || {};
+  var clef = opts.clef || 'treble';
+  var notePos = opts.notePos; // staff position number (or null)
+  var showLabel = opts.showLabel || false;
+  var noteLabel = opts.noteLabel || '';
+  var interactive = opts.interactive || false;
+  var resultNote = opts.resultNote || null; // { correct, wrong, missing } positions
+  var placedPos = opts.placedPos; // for recall front
+
+  var w = 400, h = 160;
+  var staffTop = 40;
+  var lineGap = 16;
+  var staffLeft = 70;
+  var staffRight = w - 30;
+
+  // Note X position (center of staff)
+  var noteX = (staffLeft + staffRight) / 2;
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;max-width:400px;">';
+
+  // 5 staff lines
+  for (var i = 0; i < 5; i++) {
+    var y = staffTop + i * lineGap;
+    svg += '<line x1="' + staffLeft + '" y1="' + y + '" x2="' + staffRight + '" y2="' + y + '" stroke="var(--staff-line)" stroke-width="1.2"/>';
+  }
+
+  // Clef
+  // Clef — Unicode glyphs, sized to span the staff
+  if (clef === 'treble') {
+    // The treble clef glyph extends above and below its baseline
+    // Position so the curl wraps around the G line (line index 3 from top = position 2)
+    svg += '<text x="' + (staffLeft + 2) + '" y="' + (staffTop + lineGap * 4.2 + 4) + '" font-size="' + (lineGap * 6.8) + '" fill="var(--text-primary)" font-family="\'Times New Roman\',serif" opacity="0.65">\u{1D11E}</text>';
+  } else {
+    svg += '<text x="' + (staffLeft + 4) + '" y="' + (staffTop + lineGap * 3) + '" font-size="' + (lineGap * 3.8) + '" fill="var(--text-primary)" font-family="\'Times New Roman\',serif" opacity="0.65">\u{1D122}</text>';
+  }
+
+  // Helper: get Y from staff position
+  // Position 0 = bottom line (line index 4 from top)
+  // Each position step = half a lineGap
+  function posToY(pos) {
+    // Bottom line = staffTop + 4*lineGap, position 0
+    return staffTop + 4 * lineGap - pos * (lineGap / 2);
+  }
+
+  // Helper: draw ledger lines for a position
+  function drawLedgers(pos) {
+    var result = '';
+    var lw = 28;
+    // Below staff (pos < 0, even positions are on lines)
+    if (pos <= -2) {
+      for (var p = -2; p >= pos; p -= 2) {
+        var ly = posToY(p);
+        result += '<line x1="' + (noteX - lw/2) + '" y1="' + ly + '" x2="' + (noteX + lw/2) + '" y2="' + ly + '" stroke="var(--staff-line)" stroke-width="1.2"/>';
+      }
+    }
+    // Above staff (pos > 8)
+    if (pos >= 10) {
+      for (var p = 10; p <= pos; p += 2) {
+        var ly = posToY(p);
+        result += '<line x1="' + (noteX - lw/2) + '" y1="' + ly + '" x2="' + (noteX + lw/2) + '" y2="' + ly + '" stroke="var(--staff-line)" stroke-width="1.2"/>';
+      }
+    }
+    return result;
+  }
+
+  // Draw notehead
+  function drawNote(pos, fill, label, pulse) {
+    var ny = posToY(pos);
+    var result = '';
+    result += drawLedgers(pos);
+    // Oval notehead
+    result += '<ellipse cx="' + noteX + '" cy="' + ny + '" rx="8" ry="6" fill="' + fill + '" transform="rotate(-15,' + noteX + ',' + ny + ')"/>';
+    if (pulse) {
+      result += '<ellipse cx="' + noteX + '" cy="' + ny + '" rx="8" ry="6" fill="none" stroke="' + fill + '" stroke-width="2" opacity="0.4" transform="rotate(-15,' + noteX + ',' + ny + ')">';
+      result += '<animate attributeName="rx" from="8" to="18" dur="2s" repeatCount="indefinite"/>';
+      result += '<animate attributeName="ry" from="6" to="14" dur="2s" repeatCount="indefinite"/>';
+      result += '<animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/>';
+      result += '</ellipse>';
+    }
+    // Stem
+    var stemUp = pos < 5;
+    if (stemUp) {
+      result += '<line x1="' + (noteX + 7.5) + '" y1="' + ny + '" x2="' + (noteX + 7.5) + '" y2="' + (ny - 35) + '" stroke="' + fill + '" stroke-width="1.5"/>';
+    } else {
+      result += '<line x1="' + (noteX - 7.5) + '" y1="' + ny + '" x2="' + (noteX - 7.5) + '" y2="' + (ny + 35) + '" stroke="' + fill + '" stroke-width="1.5"/>';
+    }
+    if (label) {
+      result += '<text x="' + noteX + '" y="' + (ny + 4) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + label + '</text>';
+    }
+    return result;
+  }
+
+  // Ghost note helper (includes ledger lines)
+  function ghostNote(p) {
+    var ty = posToY(p);
+    var g = '<g class="ghost-group">';
+    // Ghost ledger lines
+    var lw = 28;
+    if (p <= -2) { for (var lp = -2; lp >= p; lp -= 2) { var ly = posToY(lp); g += '<line x1="'+(noteX-lw/2)+'" y1="'+ly+'" x2="'+(noteX+lw/2)+'" y2="'+ly+'" stroke="var(--staff-line)" stroke-width="1.2"/>'; } }
+    if (p >= 10) { for (var lp = 10; lp <= p; lp += 2) { var ly = posToY(lp); g += '<line x1="'+(noteX-lw/2)+'" y1="'+ly+'" x2="'+(noteX+lw/2)+'" y2="'+ly+'" stroke="var(--staff-line)" stroke-width="1.2"/>'; } }
+    g += '<ellipse cx="' + noteX + '" cy="' + ty + '" rx="8" ry="6" fill="var(--accent)" transform="rotate(-15,' + noteX + ',' + ty + ')"/>';
+    g += '</g>';
+    return g;
+  }
+
+  // Interactive tap zones
+  if (interactive) {
+    var positions = clef === 'treble' ? treblePositions : bassPositions;
+    var allPos = Object.keys(positions).map(function(k) { return positions[k]; });
+    var minP = Math.min.apply(null, allPos);
+    var maxP = Math.max.apply(null, allPos);
+    for (var p = minP; p <= maxP; p++) {
+      var ty = posToY(p);
+      svg += '<rect class="tap-zone" x="' + staffLeft + '" y="' + (ty - lineGap/4) + '" width="' + (staffRight - staffLeft) + '" height="' + (lineGap/2) + '" fill="transparent" data-pos="' + p + '"/>';
+      svg += ghostNote(p);
+    }
+  }
+
+  // Draw the note(s)
+  if (notePos !== undefined && notePos !== null) {
+    svg += drawNote(notePos, 'var(--accent)', showLabel ? noteLabel : '', !showLabel);
+  }
+
+  // Placed note (recall front)
+  if (placedPos !== undefined && placedPos !== null) {
+    svg += drawNote(placedPos, 'var(--accent)', '', false);
+  }
+
+  // Result overlay
+  if (resultNote) {
+    if (resultNote.correct !== null && resultNote.correct !== undefined) {
+      var cy = posToY(resultNote.correct);
+      svg += drawLedgers(resultNote.correct);
+      svg += '<ellipse cx="' + noteX + '" cy="' + cy + '" rx="8" ry="6" fill="var(--green)" transform="rotate(-15,' + noteX + ',' + cy + ')"/>';
+      svg += '<text x="' + noteX + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Nunito,sans-serif">\u2713</text>';
+    }
+    if (resultNote.wrong !== null && resultNote.wrong !== undefined) {
+      var cy = posToY(resultNote.wrong);
+      svg += '<ellipse cx="' + noteX + '" cy="' + cy + '" rx="8" ry="6" fill="var(--red)" transform="rotate(-15,' + noteX + ',' + cy + ')"/>';
+      svg += '<text x="' + noteX + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Nunito,sans-serif">\u2717</text>';
+    }
+    if (resultNote.missing !== null && resultNote.missing !== undefined) {
+      var cy = posToY(resultNote.missing);
+      svg += drawLedgers(resultNote.missing);
+      svg += '<ellipse cx="' + noteX + '" cy="' + cy + '" rx="8" ry="6" fill="none" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 2" transform="rotate(-15,' + noteX + ',' + cy + ')"/>';
+    }
+  }
+
+  // Tap zones on top (for audio — always)
+  if (!interactive) {
+    var positions = clef === 'treble' ? treblePositions : bassPositions;
+    var allPos = Object.keys(positions).map(function(k) { return positions[k]; });
+    var minP = Math.min.apply(null, allPos);
+    var maxP = Math.max.apply(null, allPos);
+    for (var p = minP; p <= maxP; p++) {
+      var ty = posToY(p);
+      svg += '<rect class="tap-zone" x="' + staffLeft + '" y="' + (ty - lineGap/4) + '" width="' + (staffRight - staffLeft) + '" height="' + (lineGap/2) + '" fill="transparent" data-pos="' + p + '"/>';
+      svg += ghostNote(p);
+    }
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ─── Tap handlers ───
+function attachAudioTapHandlers(container, clef) {
+  container.querySelectorAll('.tap-zone').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var pos = parseInt(el.getAttribute('data-pos'));
+      var note = posToNote(pos, clef);
+      if (note) playNote(note);
+    });
+  });
+}
+
+function attachRecallTapHandlers(container, clef) {
+  container.querySelectorAll('.tap-zone').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var pos = parseInt(el.getAttribute('data-pos'));
+      var note = posToNote(pos, clef);
+      if (!note) return;
+      // Toggle
+      if (recallPlaced === pos) {
+        recallPlaced = null;
+      } else {
+        recallPlaced = pos;
+        playNote(note);
+      }
+      renderRecallFront();
+    });
+  });
+}
+
+// ─── Mode / Render ───
+function setMode(mode) {
+  currentMode = mode;
+  recallPlaced = null;
+  document.querySelectorAll('.mode-tab').forEach(function(el) {
+    el.classList.toggle('active', el.textContent.toLowerCase() === mode);
+  });
+  render();
+}
+
+function render() {
+  var clef = document.getElementById('sel-clef').value;
+  var noteStr = document.getElementById('sel-note').value;
+  var showBack = document.getElementById('show-back').checked;
+  var pitchClass = noteStr.replace(/[0-9]/g, '');
+  var staffPos = getStaffPos(noteStr, clef);
+
+  var front = document.getElementById('card-front');
+  var backWrapper = document.getElementById('back-wrapper');
+  var back = document.getElementById('card-back');
+
+  if (currentMode === 'recognition') {
+    // Recognition front
+    front.innerHTML = ''
+      + '<div class="tag">\uD83C\uDFBC Sheet Music</div>'
+      + '<div class="staff-prompt">What note is this?</div>'
+      + renderStaff({ clef: clef, notePos: staffPos });
+
+    attachAudioTapHandlers(front, clef);
+
+    // Recognition back
+    if (showBack) {
+      backWrapper.style.display = '';
+      var color = noteColors[pitchClass] || '#4ba9c8';
+      var dark = needsDarkText(color);
+      var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+      var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+      var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+      back.innerHTML = ''
+        + '<div class="tag">\uD83C\uDFBC Sheet Music</div>'
+        + '<div class="staff-prompt">What note is this?</div>'
+        + renderStaff({ clef: clef, notePos: staffPos, showLabel: true, noteLabel: pitchClass })
+        + '<div class="answer-section" id="answer-area" style="background:' + color + ';">'
+        + '<div style="font-size:13px;color:' + subCol + ';margin-bottom:8px;">Note</div>'
+        + '<div class="note-reveal" style="color:' + textCol + ';">' + noteStr + '</div>'
+        + '<div style="font-size:13px;color:' + subCol + ';margin-top:4px;">' + clef + ' clef</div>'
+        + '<div style="font-size:13px;color:' + hintCol + ';margin-top:6px;">\uD83D\uDD0A tap to play</div>'
+        + '</div>';
+
+      document.getElementById('answer-area').onclick = function(e) {
+        e.stopPropagation();
+        playNote(noteStr);
+      };
+      attachAudioTapHandlers(back, clef);
+    } else {
+      backWrapper.style.display = 'none';
+    }
+
+  } else {
+    // Recall mode
+    recallPlaced = null;
+    renderRecallFront();
+
+    if (showBack) {
+      backWrapper.style.display = '';
+      renderRecallBack();
+    } else {
+      backWrapper.style.display = 'none';
+    }
+  }
+
+  applyDark();
+}
+
+function renderRecallFront() {
+  var clef = document.getElementById('sel-clef').value;
+  var noteStr = document.getElementById('sel-note').value;
+  var front = document.getElementById('card-front');
+
+  front.innerHTML = ''
+    + '<div class="tag">\uD83C\uDFBC Sheet Music</div>'
+    + '<div class="staff-prompt">Place this note on the staff:</div>'
+    + '<div class="staff-name">' + noteStr + '</div>'
+    + renderStaff({ clef: clef, placedPos: recallPlaced, interactive: true });
+
+  attachRecallTapHandlers(front, clef);
+
+  // Also render back if showing
+  if (document.getElementById('show-back').checked) {
+    renderRecallBack();
+  }
+}
+
+function renderRecallBack() {
+  var clef = document.getElementById('sel-clef').value;
+  var noteStr = document.getElementById('sel-note').value;
+  var pitchClass = noteStr.replace(/[0-9]/g, '');
+  var correctPos = getStaffPos(noteStr, clef);
+  var back = document.getElementById('card-back');
+  var backWrapper = document.getElementById('back-wrapper');
+  backWrapper.style.display = '';
+
+  var result = {};
+  if (recallPlaced !== null) {
+    if (recallPlaced === correctPos) {
+      result.correct = correctPos;
+    } else {
+      result.wrong = recallPlaced;
+      result.missing = correctPos;
+    }
+  } else {
+    result.missing = correctPos;
+  }
+
+  var color = noteColors[pitchClass] || '#4ba9c8';
+  var dark = needsDarkText(color);
+  var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+  var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+  var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+  back.innerHTML = ''
+    + '<div class="tag">\uD83C\uDFBC Sheet Music</div>'
+    + '<div class="staff-prompt">Place this note on the staff:</div>'
+    + '<div class="staff-name">' + noteStr + '</div>'
+    + renderStaff({ clef: clef, resultNote: result })
+    + '<div class="answer-section" id="recall-answer-area" style="background:' + color + ';">'
+    + '<div style="font-size:13px;color:' + subCol + ';margin-bottom:8px;">Note</div>'
+    + '<div class="note-reveal" style="color:' + textCol + ';">' + noteStr + '</div>'
+    + '<div style="font-size:13px;color:' + subCol + ';margin-top:4px;">' + clef + ' clef</div>'
+    + '<div style="font-size:13px;color:' + hintCol + ';margin-top:6px;">\uD83D\uDD0A tap to play</div>'
+    + '</div>';
+
+  document.getElementById('recall-answer-area').onclick = function(e) {
+    e.stopPropagation();
+    playNote(noteStr);
+  };
+  attachAudioTapHandlers(back, clef);
+  applyDark();
+}
+
+function randomCard() {
+  recallPlaced = null;
+  var clef = document.getElementById('sel-clef').value;
+  var notes = clef === 'treble' ? trebleNotes : bassNotes;
+  var idx = Math.floor(Math.random() * notes.length);
+  document.getElementById('sel-note').value = notes[idx];
+  // Randomly pick clef too
+  if (Math.random() > 0.5) {
+    document.getElementById('sel-clef').value = 'bass';
+    populateNotes();
+    notes = bassNotes;
+    idx = Math.floor(Math.random() * notes.length);
+    document.getElementById('sel-note').value = notes[idx];
+  } else {
+    document.getElementById('sel-clef').value = 'treble';
+    populateNotes();
+    notes = trebleNotes;
+    idx = Math.floor(Math.random() * notes.length);
+    document.getElementById('sel-note').value = notes[idx];
+  }
+  render();
+}
+
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark-body', isDark);
+  applyDark();
+}
+
+function applyDark() {
+  document.querySelectorAll('.card-frame').forEach(function(el) {
+    el.classList.toggle('dark', isDark);
+  });
+}
+
+render();
+</script>
+</body>
+</html>

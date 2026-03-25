@@ -1,0 +1,265 @@
+Type	Name	Dots	Root	Notes	Shape	Key	Intervals
+note	E on String 1	1-0	1-0	E			
+note	F on String 1	1-1	1-1	F			
+note	F# on String 1	1-2	1-2	F#			
+note	G on String 1	1-3	1-3	G			
+note	G# on String 1	1-4	1-4	G#			
+note	A on String 1	1-5	1-5	A			
+note	A# on String 1	1-6	1-6	A#			
+note	B on String 1	1-7	1-7	B			
+note	C on String 1	1-8	1-8	C			
+note	C# on String 1	1-9	1-9	C#			
+note	D on String 1	1-10	1-10	D			
+note	D# on String 1	1-11	1-11	D#			
+note	E on String 1	1-12	1-12	E			
+note	B on String 2	2-0	2-0	B			
+note	C on String 2	2-1	2-1	C			
+note	C# on String 2	2-2	2-2	C#			
+note	D on String 2	2-3	2-3	D			
+note	D# on String 2	2-4	2-4	D#			
+note	E on String 2	2-5	2-5	E			
+note	F on String 2	2-6	2-6	F			
+note	F# on String 2	2-7	2-7	F#			
+note	G on String 2	2-8	2-8	G			
+note	G# on String 2	2-9	2-9	G#			
+note	A on String 2	2-10	2-10	A			
+note	A# on String 2	2-11	2-11	A#			
+note	B on String 2	2-12	2-12	B			
+note	G on String 3	3-0	3-0	G			
+note	G# on String 3	3-1	3-1	G#			
+note	A on String 3	3-2	3-2	A			
+note	A# on String 3	3-3	3-3	A#			
+note	B on String 3	3-4	3-4	B			
+note	C on String 3	3-5	3-5	C			
+note	C# on String 3	3-6	3-6	C#			
+note	D on String 3	3-7	3-7	D			
+note	D# on String 3	3-8	3-8	D#			
+note	E on String 3	3-9	3-9	E			
+note	F on String 3	3-10	3-10	F			
+note	F# on String 3	3-11	3-11	F#			
+note	G on String 3	3-12	3-12	G			
+note	D on String 4	4-0	4-0	D			
+note	D# on String 4	4-1	4-1	D#			
+note	E on String 4	4-2	4-2	E			
+note	F on String 4	4-3	4-3	F			
+note	F# on String 4	4-4	4-4	F#			
+note	G on String 4	4-5	4-5	G			
+note	G# on String 4	4-6	4-6	G#			
+note	A on String 4	4-7	4-7	A			
+note	A# on String 4	4-8	4-8	A#			
+note	B on String 4	4-9	4-9	B			
+note	C on String 4	4-10	4-10	C			
+note	C# on String 4	4-11	4-11	C#			
+note	D on String 4	4-12	4-12	D			
+note	A on String 5	5-0	5-0	A			
+note	A# on String 5	5-1	5-1	A#			
+note	B on String 5	5-2	5-2	B			
+note	C on String 5	5-3	5-3	C			
+note	C# on String 5	5-4	5-4	C#			
+note	D on String 5	5-5	5-5	D			
+note	D# on String 5	5-6	5-6	D#			
+note	E on String 5	5-7	5-7	E			
+note	F on String 5	5-8	5-8	F			
+note	F# on String 5	5-9	5-9	F#			
+note	G on String 5	5-10	5-10	G			
+note	G# on String 5	5-11	5-11	G#			
+note	A on String 5	5-12	5-12	A			
+note	E on String 6	6-0	6-0	E			
+note	F on String 6	6-1	6-1	F			
+note	F# on String 6	6-2	6-2	F#			
+note	G on String 6	6-3	6-3	G			
+note	G# on String 6	6-4	6-4	G#			
+note	A on String 6	6-5	6-5	A			
+note	A# on String 6	6-6	6-6	A#			
+note	B on String 6	6-7	6-7	B			
+note	C on String 6	6-8	6-8	C			
+note	C# on String 6	6-9	6-9	C#			
+note	D on String 6	6-10	6-10	D			
+note	D# on String 6	6-11	6-11	D#			
+note	E on String 6	6-12	6-12	E			
+scale	C Major Position 1 (C shape, open)	6-0 6-1 6-3 5-0 5-2 5-3 4-0 4-2 4-3 3-0 3-2 2-0 2-1 2-3 1-0 1-1 1-3		E,F,G,A,B,C,D,E,F,G,A,B,C,D,E,F,G		C	3,4,5,6,7,1,2,3,4,5,6,7,1,2,3,4,5
+scale	C Major Position 2 (D shape)	6-3 6-5 5-2 5-3 5-5 4-2 4-3 4-5 3-2 3-4 3-5 2-3 2-5 1-3 1-5		G,A,B,C,D,E,F,G,A,B,C,D,E,G,A		C	5,6,7,1,2,3,4,5,6,7,1,2,3,5,6
+scale	C Major Position 3 (E shape)	6-5 6-7 6-8 5-5 5-7 5-8 4-5 4-7 3-4 3-5 3-7 2-5 2-6 2-8 1-5 1-7 1-8		A,B,C,D,E,F,G,A,B,C,D,E,F,G,A,B,C		C	6,7,1,2,3,4,5,6,7,1,2,3,4,5,6,7,1
+scale	C Major Position 4 (A shape)	6-7 6-8 6-10 5-7 5-8 5-10 4-7 4-9 4-10 3-7 3-9 3-10 2-8 2-10 1-7 1-8 1-10		B,C,D,E,F,G,A,B,C,D,E,F,G,A,B,C,D		C	7,1,2,3,4,5,6,7,1,2,3,4,5,6,7,1,2
+scale	C Major Position 5 (G shape)	6-10 6-12 5-10 5-12 4-9 4-10 4-12 3-9 3-10 3-12 2-10 2-12 1-10 1-12		D,E,G,A,B,C,D,E,F,G,A,B,D,E		C	2,3,5,6,7,1,2,3,4,5,6,7,2,3
+scale	G Major Position 1 (G shape, open)	6-0 6-2 6-3 5-0 5-2 5-3 4-0 4-2 4-4 3-0 3-2 3-4 2-0 2-1 2-3 1-0 1-2 1-3		E,F#,G,A,B,C,D,E,F#,G,A,B,B,C,D,E,F#,G		G	6,7,1,2,3,4,5,6,7,1,2,3,3,4,5,6,7,1
+scale	G Major Position 2 (E shape)	6-2 6-3 6-5 5-2 5-3 5-5 4-2 4-4 4-5 3-2 3-4 3-5 2-3 2-5 1-2 1-3 1-5		F#,G,A,B,C,D,E,F#,G,A,B,C,D,E,F#,G,A		G	7,1,2,3,4,5,6,7,1,2,3,4,5,6,7,1,2
+scale	G Major Position 3 (D shape)	6-5 6-7 5-5 5-7 4-4 4-5 4-7 3-4 3-5 3-7 2-5 2-7 1-5 1-7		A,B,D,E,F#,G,A,B,C,D,E,F#,A,B		G	2,3,5,6,7,1,2,3,4,5,6,7,2,3
+scale	G Major Position 4 (C shape)	6-7 6-8 6-10 5-7 5-9 5-10 4-7 4-9 4-10 3-7 3-9 2-7 2-8 2-10 1-7 1-8 1-10		B,C,D,E,F#,G,A,B,C,D,E,F#,G,A,B,C,D		G	3,4,5,6,7,1,2,3,4,5,6,7,1,2,3,4,5
+scale	G Major Position 5 (A shape)	6-10 6-12 5-9 5-10 5-12 4-9 4-10 4-12 3-9 3-11 3-12 2-10 2-12 1-10 1-12		D,E,F#,G,A,B,C,D,E,F#,G,A,B,D,E		G	5,6,7,1,2,3,4,5,6,7,1,2,3,5,6
+scale	D Major Position 1 (D shape, open)	6-0 6-2 6-3 5-0 5-2 5-4 4-0 4-2 4-4 3-0 3-2 3-4 2-0 2-2 2-3 1-0 1-2 1-3		E,F#,G,A,B,C#,D,E,F#,G,A,B,B,C#,D,E,F#,G		D	2,3,4,5,6,7,1,2,3,4,5,6,6,7,1,2,3,4
+scale	D Major Position 2 (C shape)	6-2 6-3 6-5 5-2 5-4 5-5 4-2 4-4 4-5 3-2 3-4 2-2 2-3 2-5 1-2 1-3 1-5		F#,G,A,B,C#,D,E,F#,G,A,B,C#,D,E,F#,G,A		D	3,4,5,6,7,1,2,3,4,5,6,7,1,2,3,4,5
+scale	D Major Position 3 (A shape)	6-5 6-7 5-4 5-5 5-7 4-4 4-5 4-7 3-4 3-6 3-7 2-5 2-7 1-5 1-7		A,B,C#,D,E,F#,G,A,B,C#,D,E,F#,A,B		D	5,6,7,1,2,3,4,5,6,7,1,2,3,5,6
+scale	D Major Position 4 (G shape)	6-7 6-9 6-10 5-7 5-9 5-10 4-7 4-9 3-7 3-9 2-7 2-8 2-10 1-7 1-9 1-10		B,C#,D,E,F#,G,A,B,D,E,F#,G,A,B,C#,D		D	6,7,1,2,3,4,5,6,1,2,3,4,5,6,7,1
+scale	D Major Position 5 (E shape)	6-9 6-10 6-12 5-9 5-10 5-12 4-9 4-11 4-12 3-9 3-11 3-12 2-10 2-12 1-9 1-10 1-12		C#,D,E,F#,G,A,B,C#,D,E,F#,G,A,B,C#,D,E		D	7,1,2,3,4,5,6,7,1,2,3,4,5,6,7,1,2
+scale	A Major Position 1 (A shape, open)	6-0 6-2 6-4 5-0 5-2 5-4 4-0 4-2 4-4 3-1 3-2 3-4 2-0 2-2 2-3 1-0 1-2 1-4		E,F#,G#,A,B,C#,D,E,F#,G#,A,B,B,C#,D,E,F#,G#		A	5,6,7,1,2,3,4,5,6,7,1,2,2,3,4,5,6,7
+scale	A Major Position 2 (G shape)	6-2 6-4 6-5 5-2 5-4 5-5 4-2 4-4 3-2 3-4 2-2 2-3 2-5 1-2 1-4 1-5		F#,G#,A,B,C#,D,E,F#,A,B,C#,D,E,F#,G#,A		A	6,7,1,2,3,4,5,6,1,2,3,4,5,6,7,1
+scale	A Major Position 3 (E shape)	6-4 6-5 6-7 5-4 5-5 5-7 4-4 4-6 4-7 3-4 3-6 3-7 2-5 2-7 1-4 1-5 1-7		G#,A,B,C#,D,E,F#,G#,A,B,C#,D,E,F#,G#,A,B		A	7,1,2,3,4,5,6,7,1,2,3,4,5,6,7,1,2
+scale	A Major Position 4 (D shape)	6-7 6-9 6-10 5-7 5-9 4-7 4-9 3-7 3-9 2-7 2-9 2-10 1-7 1-9 1-10		B,C#,D,E,F#,A,B,D,E,F#,G#,A,B,C#,D		A	2,3,4,5,6,1,2,4,5,6,7,1,2,3,4
+scale	A Major Position 5 (C shape)	6-9 6-10 6-12 5-9 5-11 5-12 4-9 4-11 4-12 3-9 3-11 2-9 2-10 2-12 1-9 1-10 1-12		C#,D,E,F#,G#,A,B,C#,D,E,F#,G#,A,B,C#,D,E		A	3,4,5,6,7,1,2,3,4,5,6,7,1,2,3,4,5
+scale	E Major Position 1 (E shape, open)	6-0 6-2 6-4 5-0 5-2 5-4 4-1 4-2 4-4 3-1 3-2 3-4 2-0 2-2 2-4 1-0 1-2 1-4		E,F#,G#,A,B,C#,D#,E,F#,G#,A,B,B,C#,D#,E,F#,G#		E	1,2,3,4,5,6,7,1,2,3,4,5,5,6,7,1,2,3
+scale	E Major Position 2 (D shape)	6-2 6-4 6-5 5-2 5-4 4-2 4-4 3-2 3-4 2-2 2-4 2-5 1-2 1-4 1-5		F#,G#,A,B,C#,E,F#,A,B,C#,D#,E,F#,G#,A		E	2,3,4,5,6,1,2,4,5,6,7,1,2,3,4
+scale	E Major Position 3 (C shape)	6-4 6-5 6-7 5-4 5-6 5-7 4-4 4-6 4-7 3-4 3-6 3-8 2-4 2-5 2-7 1-4 1-5 1-7		G#,A,B,C#,D#,E,F#,G#,A,B,C#,D#,D#,E,F#,G#,A,B		E	3,4,5,6,7,1,2,3,4,5,6,7,7,1,2,3,4,5
+scale	E Major Position 4 (A shape)	6-7 6-9 5-7 5-9 4-7 4-9 3-8 3-9 2-7 2-9 2-10 1-7 1-9		B,C#,E,F#,A,B,D#,E,F#,G#,A,B,C#		E	5,6,1,2,4,5,7,1,2,3,4,5,6
+scale	E Major Position 5 (G shape)	6-9 6-11 6-12 5-9 5-11 5-12 4-9 4-11 3-9 3-11 2-9 2-10 2-12 1-9 1-11 1-12		C#,D#,E,F#,G#,A,B,C#,E,F#,G#,A,B,C#,D#,E		E	6,7,1,2,3,4,5,6,1,2,3,4,5,6,7,1
+scale	A Natural Minor Position 1 (open)	6-0 6-1 6-3 5-0 5-2 5-3 4-0 4-2 4-3 3-0 3-2 2-0 2-1 2-3 1-0 1-1 1-3		E,F,G,A,B,C,D,E,F,G,A,B,C,D,E,F,G		Am	5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7
+scale	A Natural Minor Position 2	6-3 6-5 5-2 5-3 5-5 4-2 4-3 4-5 3-2 3-4 3-5 2-3 2-5 1-3 1-5		G,A,B,C,D,E,F,G,A,B,C,D,E,G,A		Am	b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b7,1
+scale	A Natural Minor Position 3	6-5 6-7 6-8 5-5 5-7 5-8 4-5 4-7 3-4 3-5 3-7 2-5 2-6 2-8 1-5 1-7 1-8		A,B,C,D,E,F,G,A,B,C,D,E,F,G,A,B,C		Am	1,2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3
+scale	A Natural Minor Position 4	6-7 6-8 6-10 5-7 5-8 5-10 4-7 4-9 4-10 3-7 3-9 3-10 2-8 2-10 1-7 1-8 1-10		B,C,D,E,F,G,A,B,C,D,E,F,G,A,B,C,D		Am	2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4
+scale	A Natural Minor Position 5	6-10 6-12 5-10 5-12 4-9 4-10 4-12 3-9 3-10 3-12 2-10 2-12 1-10 1-12		D,E,G,A,B,C,D,E,F,G,A,B,D,E		Am	4,5,b7,1,2,b3,4,5,b6,b7,1,2,4,5
+scale	E Natural Minor Position 1 (open)	6-0 6-2 6-3 5-0 5-2 5-3 4-0 4-2 3-0 3-2 2-0 2-1 2-3 1-0 1-2 1-3		E,F#,G,A,B,C,D,E,G,A,B,C,D,E,F#,G		Em	1,2,b3,4,5,b6,b7,1,b3,4,5,b6,b7,1,2,b3
+scale	E Natural Minor Position 2	6-2 6-3 6-5 5-2 5-3 5-5 4-2 4-4 4-5 3-2 3-4 3-5 2-3 2-5 1-2 1-3 1-5		F#,G,A,B,C,D,E,F#,G,A,B,C,D,E,F#,G,A		Em	2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4
+scale	E Natural Minor Position 3	6-5 6-7 6-8 5-5 5-7 4-4 4-5 4-7 3-4 3-5 3-7 2-5 2-7 2-8 1-5 1-7 1-8		A,B,C,D,E,F#,G,A,B,C,D,E,F#,G,A,B,C		Em	4,5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b6
+scale	E Natural Minor Position 4	6-7 6-8 6-10 5-7 5-9 5-10 4-7 4-9 4-10 3-7 3-9 2-7 2-8 2-10 1-7 1-8 1-10		B,C,D,E,F#,G,A,B,C,D,E,F#,G,A,B,C,D		Em	5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7
+scale	E Natural Minor Position 5	6-10 6-12 5-9 5-10 5-12 4-9 4-10 4-12 3-9 3-11 3-12 2-10 2-12 1-10 1-12		D,E,F#,G,A,B,C,D,E,F#,G,A,B,D,E		Em	b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b7,1
+scale	D Natural Minor Position 1 (open)	6-0 6-1 6-3 5-0 5-1 5-3 4-0 4-2 4-3 3-0 3-2 3-3 2-1 2-3 1-0 1-1 1-3		E,F,G,A,A#,C,D,E,F,G,A,A#,C,D,E,F,G		Dm	2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4
+scale	D Natural Minor Position 2	6-3 6-5 5-3 5-5 4-2 4-3 4-5 3-2 3-3 3-5 2-3 2-5 1-3 1-5		G,A,C,D,E,F,G,A,A#,C,D,E,G,A		Dm	4,5,b7,1,2,b3,4,5,b6,b7,1,2,4,5
+scale	D Natural Minor Position 3	6-5 6-6 6-8 5-5 5-7 5-8 4-5 4-7 4-8 3-5 3-7 2-5 2-6 2-8 1-5 1-6 1-8		A,A#,C,D,E,F,G,A,A#,C,D,E,F,G,A,A#,C		Dm	5,b6,b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b6,b7
+scale	D Natural Minor Position 4	6-8 6-10 5-7 5-8 5-10 4-7 4-8 4-10 3-7 3-9 3-10 2-8 2-10 1-8 1-10		C,D,E,F,G,A,A#,C,D,E,F,G,A,C,D		Dm	b7,1,2,b3,4,5,b6,b7,1,2,b3,4,5,b7,1
+scale	D Natural Minor Position 5	6-10 6-12 5-10 5-12 4-10 4-12 3-9 3-10 3-12 2-10 2-11 1-10 1-12		D,E,G,A,C,D,E,F,G,A,A#,D,E		Dm	1,2,4,5,b7,1,2,b3,4,5,b6,1,2
+scale	Am Pentatonic Position 1 (box 1)	6-5 6-8 5-5 5-7 4-5 4-7 3-5 3-7 2-5 2-8 1-5 1-8		A,C,D,E,G,A,C,D,E,G,A,C		Am	1,b3,4,5,b7,1,b3,4,5,b7,1,b3
+scale	Am Pentatonic Position 2 (box 2)	6-8 6-10 5-7 5-10 4-7 4-10 3-7 3-9 2-8 2-10 1-8 1-10		C,D,E,G,A,C,D,E,G,A,C,D		Am	b3,4,5,b7,1,b3,4,5,b7,1,b3,4
+scale	Am Pentatonic Position 3 (box 3)	6-10 6-12 5-10 5-12 4-10 4-12 3-12 2-10 1-10 1-12		D,E,G,A,C,D,G,A,D,E		Am	4,5,b7,1,b3,4,b7,1,4,5
+scale	Am Pentatonic Position 4 (box 4, open)	6-0 6-3 5-0 5-3 4-0 4-2 3-0 3-2 2-1 2-3 1-0 1-3		E,G,A,C,D,E,G,A,C,D,E,G		Am	5,b7,1,b3,4,5,b7,1,b3,4,5,b7
+scale	Am Pentatonic Position 5 (box 5)	6-3 6-5 5-3 5-5 4-2 4-5 3-2 3-5 2-3 2-5 1-3 1-5		G,A,C,D,E,G,A,C,D,E,G,A		Am	b7,1,b3,4,5,b7,1,b3,4,5,b7,1
+scale	Em Pentatonic Position 1 (open)	6-0 6-3 5-0 5-2 4-0 4-2 3-0 3-2 2-0 2-3 1-0 1-3		E,G,A,B,D,E,G,A,B,D,E,G		Em	1,b3,4,5,b7,1,b3,4,5,b7,1,b3
+scale	Em Pentatonic Position 2	6-3 6-5 5-2 5-5 4-2 4-5 3-2 3-4 2-3 2-5 1-3 1-5		G,A,B,D,E,G,A,B,D,E,G,A		Em	b3,4,5,b7,1,b3,4,5,b7,1,b3,4
+scale	Em Pentatonic Position 3	6-5 6-7 5-5 5-7 4-5 4-7 3-7 2-5 2-8 1-5 1-7		A,B,D,E,G,A,D,E,G,A,B		Em	4,5,b7,1,b3,4,b7,1,b3,4,5
+scale	Em Pentatonic Position 4	6-7 6-10 5-7 5-10 4-7 4-9 3-7 3-9 2-8 2-10 1-7 1-10		B,D,E,G,A,B,D,E,G,A,B,D		Em	5,b7,1,b3,4,5,b7,1,b3,4,5,b7
+scale	Em Pentatonic Position 5	6-10 6-12 5-10 5-12 4-9 4-12 3-9 3-12 2-10 2-12 1-10 1-12		D,E,G,A,B,D,E,G,A,B,D,E		Em	b7,1,b3,4,5,b7,1,b3,4,5,b7,1
+scale	Dm Pentatonic Position 1 (open)	6-1 6-3 5-0 5-3 4-0 4-3 3-0 3-2 2-1 2-3 1-1 1-3		F,G,A,C,D,F,G,A,C,D,F,G		Dm	b3,4,5,b7,1,b3,4,5,b7,1,b3,4
+scale	Dm Pentatonic Position 2	6-3 6-5 5-3 5-5 4-3 4-5 3-2 3-5 2-3 1-3 1-5		G,A,C,D,F,G,A,C,D,G,A		Dm	4,5,b7,1,b3,4,5,b7,1,4,5
+scale	Dm Pentatonic Position 3	6-5 6-8 5-5 5-8 4-5 4-7 3-5 3-7 2-6 2-8 1-5 1-8		A,C,D,F,G,A,C,D,F,G,A,C		Dm	5,b7,1,b3,4,5,b7,1,b3,4,5,b7
+scale	Dm Pentatonic Position 4	6-8 6-10 5-8 5-10 4-7 4-10 3-7 3-10 2-8 2-10 1-8 1-10		C,D,F,G,A,C,D,F,G,A,C,D		Dm	b7,1,b3,4,5,b7,1,b3,4,5,b7,1
+scale	Dm Pentatonic Position 5	6-10 5-10 5-12 4-10 4-12 3-10 3-12 2-10 1-10		D,G,A,C,D,F,G,A,D		Dm	1,4,5,b7,1,b3,4,5,1
+chord	C	5-3 4-2 3-0 2-1 1-0	5-3	C,E,G,C,E	open	C	1,3,5,1,3
+chord	D	4-0 3-2 2-3 1-2	4-0	D,A,D,F#	open	D	1,5,1,3
+chord	E	6-0 5-2 4-2 3-1 2-0 1-0	6-0	E,B,E,G#,B,E	open	E	1,5,1,3,5,1
+chord	G	6-3 5-2 4-0 3-0 2-0 1-3	6-3	G,B,D,G,B,G	open	G	1,3,5,1,3,1
+chord	A	5-0 4-2 3-2 2-2 1-0	5-0	A,E,A,C#,E	open	A	1,5,1,3,5
+chord	Am	5-0 4-2 3-2 2-1 1-0	5-0	A,E,A,C,E	open	Am	1,5,1,b3,5
+chord	Dm	4-0 3-2 2-3 1-1	4-0	D,A,D,F	open	Dm	1,5,1,b3
+chord	Em	6-0 5-2 4-2 3-0 2-0 1-0	6-0	E,B,E,G,B,E	open	Em	1,5,1,b3,5,1
+chord	F	6-1 5-3 4-3 3-2 2-1 1-1	6-1	F,C,F,A,C,F	open	F	1,5,1,3,5,1
+chord	B7	5-2 4-1 3-2 2-0 1-2	5-2	B,D#,A,B,F#	open	B7	1,3,b7,1,5
+chord	A (E-shape barre)	6-5 5-7 4-7 3-6 2-5 1-5	6-5	A,E,A,C#,E,A	E-shape	A	1,5,1,3,5,1
+chord	C (A-shape barre)	5-3 4-5 3-5 2-5 1-3	5-3	C,G,C,E,G	A-shape	C	1,5,1,3,5
+chord	Am (Em-shape barre)	6-5 5-7 4-7 3-5 2-5 1-5	6-5	A,E,A,C,E,A	Em-shape	Am	1,5,1,b3,5,1
+chord	Cm (Am-shape barre)	5-3 4-5 3-5 2-4 1-3	5-3	C,G,C,D#,G	Am-shape	Cm	1,5,1,b3,5
+arpeggio	Cmaj7	5-3 4-2 3-0 2-0 1-0	5-3	C,E,G,B,E		Cmaj7	1,3,5,7,3
+arpeggio	Am7	5-0 4-2 3-0 2-1 1-0	5-0	A,E,G,C,E		Am7	1,5,b7,b3,5
+arpeggio	Dm7	4-0 3-2 2-1 1-1	4-0	D,A,C,F		Dm7	1,5,b7,b3
+arpeggio	G7	6-3 5-2 4-0 3-0 2-0 1-1	6-3	G,B,D,G,B,F		G7	1,3,5,1,3,b7
+arpeggio	Fmaj7	6-1 5-3 4-3 3-2 2-1 1-0	6-1	F,C,F,A,C,E		Fmaj7	1,5,1,3,5,7
+arpeggio	Em7	6-0 5-2 4-0 3-0 2-3 1-0	6-0	E,B,D,G,D,E		Em7	1,5,b7,b3,b7,1
+arpeggio	Bm7b5	5-2 4-3 3-4 2-3	5-2	B,F,B,D		Bm7b5	1,b5,1,b3
+arpeggio	A7	5-0 4-2 3-0 2-2 1-0	5-0	A,E,G,C#,E		A7	1,5,b7,3,5
+chord	C triad root position (strings D-G-B)	4-10 3-9 2-8	4-10	C,E,G	triad	C	1,3,5
+chord	C triad 2nd inversion (strings D-G-B)	4-5 3-5 2-5	3-5	G,C,E	triad	C	5,1,3
+chord	C triad root position (strings G-B-E)	3-5 2-5 1-3	3-5	C,E,G	triad	C	1,3,5
+chord	C triad 1st inversion (strings G-B-E)	3-9 2-8 1-8	1-8	E,G,C	triad	C	3,5,1
+chord	C triad 1st inversion (strings A-D-G)	5-7 4-5 3-5	3-5	E,G,C	triad	C	3,5,1
+chord	C triad 2nd inversion (strings A-D-G)	5-10 4-10 3-9	4-10	G,C,E	triad	C	5,1,3
+chord	Cm triad root position (strings D-G-B)	4-10 3-8 2-8	4-10	C,D#,G	triad	Cm	1,b3,5
+chord	Cm triad 2nd inversion (strings D-G-B)	4-5 3-5 2-4	3-5	G,C,D#	triad	Cm	5,1,b3
+chord	Cm triad root position (strings G-B-E)	3-5 2-4 1-3	3-5	C,D#,G	triad	Cm	1,b3,5
+chord	Cm triad 1st inversion (strings G-B-E)	3-8 2-8 1-8	1-8	D#,G,C	triad	Cm	b3,5,1
+chord	Cm triad 1st inversion (strings A-D-G)	5-6 4-5 3-5	3-5	D#,G,C	triad	Cm	b3,5,1
+chord	Cm triad 2nd inversion (strings A-D-G)	5-10 4-10 3-8	4-10	G,C,D#	triad	Cm	5,1,b3
+chord	D triad root position (strings D-G-B)	4-12 3-11 2-10	4-12	D,F#,A	triad	D	1,3,5
+chord	D triad 1st inversion (strings D-G-B)	4-4 3-2 2-3	2-3	F#,A,D	triad	D	3,5,1
+chord	D triad 2nd inversion (strings D-G-B)	4-7 3-7 2-7	3-7	A,D,F#	triad	D	5,1,3
+chord	D triad root position (strings G-B-E)	3-7 2-7 1-5	3-7	D,F#,A	triad	D	1,3,5
+chord	D triad 1st inversion (strings G-B-E)	3-11 2-10 1-10	1-10	F#,A,D	triad	D	3,5,1
+chord	D triad 2nd inversion (strings G-B-E)	3-2 2-3 1-2	2-3	A,D,F#	triad	D	5,1,3
+chord	D triad root position (strings A-D-G)	5-5 4-4 3-2	5-5	D,F#,A	triad	D	1,3,5
+chord	D triad 1st inversion (strings A-D-G)	5-9 4-7 3-7	3-7	F#,A,D	triad	D	3,5,1
+chord	D triad 2nd inversion (strings A-D-G)	5-12 4-12 3-11	4-12	A,D,F#	triad	D	5,1,3
+chord	Dm triad root position (strings D-G-B)	4-12 3-10 2-10	4-12	D,F,A	triad	Dm	1,b3,5
+chord	Dm triad 1st inversion (strings D-G-B)	4-3 3-2 2-3	2-3	F,A,D	triad	Dm	b3,5,1
+chord	Dm triad 2nd inversion (strings D-G-B)	4-7 3-7 2-6	3-7	A,D,F	triad	Dm	5,1,b3
+chord	Dm triad root position (strings G-B-E)	3-7 2-6 1-5	3-7	D,F,A	triad	Dm	1,b3,5
+chord	Dm triad 1st inversion (strings G-B-E)	3-10 2-10 1-10	1-10	F,A,D	triad	Dm	b3,5,1
+chord	Dm triad 2nd inversion (strings G-B-E)	3-2 2-3 1-1	2-3	A,D,F	triad	Dm	5,1,b3
+chord	Dm triad root position (strings A-D-G)	5-5 4-3 3-2	5-5	D,F,A	triad	Dm	1,b3,5
+chord	Dm triad 1st inversion (strings A-D-G)	5-8 4-7 3-7	3-7	F,A,D	triad	Dm	b3,5,1
+chord	Dm triad 2nd inversion (strings A-D-G)	5-12 4-12 3-10	4-12	A,D,F	triad	Dm	5,1,b3
+chord	E triad 1st inversion (strings D-G-B)	4-6 3-4 2-5	2-5	G#,B,E	triad	E	3,5,1
+chord	E triad 2nd inversion (strings D-G-B)	4-9 3-9 2-9	3-9	B,E,G#	triad	E	5,1,3
+chord	E triad root position (strings G-B-E)	3-9 2-9 1-7	3-9	E,G#,B	triad	E	1,3,5
+chord	E triad 2nd inversion (strings G-B-E)	3-4 2-5 1-4	2-5	B,E,G#	triad	E	5,1,3
+chord	E triad root position (strings A-D-G)	5-7 4-6 3-4	5-7	E,G#,B	triad	E	1,3,5
+chord	E triad 1st inversion (strings A-D-G)	5-11 4-9 3-9	3-9	G#,B,E	triad	E	3,5,1
+chord	E triad 2nd inversion (strings A-D-G)	5-2 4-2 3-1	4-2	B,E,G#	triad	E	5,1,3
+chord	Em triad 1st inversion (strings D-G-B)	4-5 3-4 2-5	2-5	G,B,E	triad	Em	b3,5,1
+chord	Em triad 2nd inversion (strings D-G-B)	4-9 3-9 2-8	3-9	B,E,G	triad	Em	5,1,b3
+chord	Em triad root position (strings G-B-E)	3-9 2-8 1-7	3-9	E,G,B	triad	Em	1,b3,5
+chord	Em triad 1st inversion (strings G-B-E)	3-12 2-12 1-12	1-12	G,B,E	triad	Em	b3,5,1
+chord	Em triad 2nd inversion (strings G-B-E)	3-4 2-5 1-3	2-5	B,E,G	triad	Em	5,1,b3
+chord	Em triad root position (strings A-D-G)	5-7 4-5 3-4	5-7	E,G,B	triad	Em	1,b3,5
+chord	Em triad 1st inversion (strings A-D-G)	5-10 4-9 3-9	3-9	G,B,E	triad	Em	b3,5,1
+chord	F triad root position (strings D-G-B)	4-3 3-2 2-1	4-3	F,A,C	triad	F	1,3,5
+chord	F triad 1st inversion (strings D-G-B)	4-7 3-5 2-6	2-6	A,C,F	triad	F	3,5,1
+chord	F triad 2nd inversion (strings D-G-B)	4-10 3-10 2-10	3-10	C,F,A	triad	F	5,1,3
+chord	F triad root position (strings G-B-E)	3-10 2-10 1-8	3-10	F,A,C	triad	F	1,3,5
+chord	F triad 1st inversion (strings G-B-E)	3-2 2-1 1-1	1-1	A,C,F	triad	F	3,5,1
+chord	F triad 2nd inversion (strings G-B-E)	3-5 2-6 1-5	2-6	C,F,A	triad	F	5,1,3
+chord	F triad root position (strings A-D-G)	5-8 4-7 3-5	5-8	F,A,C	triad	F	1,3,5
+chord	F triad 1st inversion (strings A-D-G)	5-12 4-10 3-10	3-10	A,C,F	triad	F	3,5,1
+chord	F triad 2nd inversion (strings A-D-G)	5-3 4-3 3-2	4-3	C,F,A	triad	F	5,1,3
+chord	Fm triad root position (strings D-G-B)	4-3 3-1 2-1	4-3	F,G#,C	triad	Fm	1,b3,5
+chord	Fm triad 1st inversion (strings D-G-B)	4-6 3-5 2-6	2-6	G#,C,F	triad	Fm	b3,5,1
+chord	Fm triad 2nd inversion (strings D-G-B)	4-10 3-10 2-9	3-10	C,F,G#	triad	Fm	5,1,b3
+chord	Fm triad root position (strings G-B-E)	3-10 2-9 1-8	3-10	F,G#,C	triad	Fm	1,b3,5
+chord	Fm triad 1st inversion (strings G-B-E)	3-1 2-1 1-1	1-1	G#,C,F	triad	Fm	b3,5,1
+chord	Fm triad 2nd inversion (strings G-B-E)	3-5 2-6 1-4	2-6	C,F,G#	triad	Fm	5,1,b3
+chord	Fm triad root position (strings A-D-G)	5-8 4-6 3-5	5-8	F,G#,C	triad	Fm	1,b3,5
+chord	Fm triad 1st inversion (strings A-D-G)	5-11 4-10 3-10	3-10	G#,C,F	triad	Fm	b3,5,1
+chord	Fm triad 2nd inversion (strings A-D-G)	5-3 4-3 3-1	4-3	C,F,G#	triad	Fm	5,1,b3
+chord	G triad root position (strings D-G-B)	4-5 3-4 2-3	4-5	G,B,D	triad	G	1,3,5
+chord	G triad 1st inversion (strings D-G-B)	4-9 3-7 2-8	2-8	B,D,G	triad	G	3,5,1
+chord	G triad 2nd inversion (strings D-G-B)	4-12 3-12 2-12	3-12	D,G,B	triad	G	5,1,3
+chord	G triad root position (strings G-B-E)	3-12 2-12 1-10	3-12	G,B,D	triad	G	1,3,5
+chord	G triad 1st inversion (strings G-B-E)	3-4 2-3 1-3	1-3	B,D,G	triad	G	3,5,1
+chord	G triad 2nd inversion (strings G-B-E)	3-7 2-8 1-7	2-8	D,G,B	triad	G	5,1,3
+chord	G triad root position (strings A-D-G)	5-10 4-9 3-7	5-10	G,B,D	triad	G	1,3,5
+chord	G triad 2nd inversion (strings A-D-G)	5-5 4-5 3-4	4-5	D,G,B	triad	G	5,1,3
+chord	Gm triad root position (strings D-G-B)	4-5 3-3 2-3	4-5	G,A#,D	triad	Gm	1,b3,5
+chord	Gm triad 1st inversion (strings D-G-B)	4-8 3-7 2-8	2-8	A#,D,G	triad	Gm	b3,5,1
+chord	Gm triad 2nd inversion (strings D-G-B)	4-12 3-12 2-11	3-12	D,G,A#	triad	Gm	5,1,b3
+chord	Gm triad root position (strings G-B-E)	3-12 2-11 1-10	3-12	G,A#,D	triad	Gm	1,b3,5
+chord	Gm triad 1st inversion (strings G-B-E)	3-3 2-3 1-3	1-3	A#,D,G	triad	Gm	b3,5,1
+chord	Gm triad 2nd inversion (strings G-B-E)	3-7 2-8 1-6	2-8	D,G,A#	triad	Gm	5,1,b3
+chord	Gm triad root position (strings A-D-G)	5-10 4-8 3-7	5-10	G,A#,D	triad	Gm	1,b3,5
+chord	Gm triad 2nd inversion (strings A-D-G)	5-5 4-5 3-3	4-5	D,G,A#	triad	Gm	5,1,b3
+chord	A triad root position (strings D-G-B)	4-7 3-6 2-5	4-7	A,C#,E	triad	A	1,3,5
+chord	A triad 1st inversion (strings D-G-B)	4-11 3-9 2-10	2-10	C#,E,A	triad	A	3,5,1
+chord	A triad 2nd inversion (strings D-G-B)	4-2 3-2 2-2	3-2	E,A,C#	triad	A	5,1,3
+chord	A triad 1st inversion (strings G-B-E)	3-6 2-5 1-5	1-5	C#,E,A	triad	A	3,5,1
+chord	A triad 2nd inversion (strings G-B-E)	3-9 2-10 1-9	2-10	E,A,C#	triad	A	5,1,3
+chord	A triad root position (strings A-D-G)	5-12 4-11 3-9	5-12	A,C#,E	triad	A	1,3,5
+chord	A triad 1st inversion (strings A-D-G)	5-4 4-2 3-2	3-2	C#,E,A	triad	A	3,5,1
+chord	A triad 2nd inversion (strings A-D-G)	5-7 4-7 3-6	4-7	E,A,C#	triad	A	5,1,3
+chord	Am triad root position (strings D-G-B)	4-7 3-5 2-5	4-7	A,C,E	triad	Am	1,b3,5
+chord	Am triad 1st inversion (strings D-G-B)	4-10 3-9 2-10	2-10	C,E,A	triad	Am	b3,5,1
+chord	Am triad 2nd inversion (strings D-G-B)	4-2 3-2 2-1	3-2	E,A,C	triad	Am	5,1,b3
+chord	Am triad 1st inversion (strings G-B-E)	3-5 2-5 1-5	1-5	C,E,A	triad	Am	b3,5,1
+chord	Am triad 2nd inversion (strings G-B-E)	3-9 2-10 1-8	2-10	E,A,C	triad	Am	5,1,b3
+chord	Am triad root position (strings A-D-G)	5-12 4-10 3-9	5-12	A,C,E	triad	Am	1,b3,5
+chord	Am triad 1st inversion (strings A-D-G)	5-3 4-2 3-2	3-2	C,E,A	triad	Am	b3,5,1
+chord	Am triad 2nd inversion (strings A-D-G)	5-7 4-7 3-5	4-7	E,A,C	triad	Am	5,1,b3
+chord	B triad root position (strings D-G-B)	4-9 3-8 2-7	4-9	B,D#,F#	triad	B	1,3,5
+chord	B triad 2nd inversion (strings D-G-B)	4-4 3-4 2-4	3-4	F#,B,D#	triad	B	5,1,3
+chord	B triad root position (strings G-B-E)	3-4 2-4 1-2	3-4	B,D#,F#	triad	B	1,3,5
+chord	B triad 1st inversion (strings G-B-E)	3-8 2-7 1-7	1-7	D#,F#,B	triad	B	3,5,1
+chord	B triad 2nd inversion (strings G-B-E)	3-11 2-12 1-11	2-12	F#,B,D#	triad	B	5,1,3
+chord	B triad 1st inversion (strings A-D-G)	5-6 4-4 3-4	3-4	D#,F#,B	triad	B	3,5,1
+chord	B triad 2nd inversion (strings A-D-G)	5-9 4-9 3-8	4-9	F#,B,D#	triad	B	5,1,3
+chord	Bm triad root position (strings D-G-B)	4-9 3-7 2-7	4-9	B,D,F#	triad	Bm	1,b3,5
+chord	Bm triad 1st inversion (strings D-G-B)	4-12 3-11 2-12	2-12	D,F#,B	triad	Bm	b3,5,1
+chord	Bm triad 2nd inversion (strings D-G-B)	4-4 3-4 2-3	3-4	F#,B,D	triad	Bm	5,1,b3
+chord	Bm triad root position (strings G-B-E)	3-4 2-3 1-2	3-4	B,D,F#	triad	Bm	1,b3,5
+chord	Bm triad 1st inversion (strings G-B-E)	3-7 2-7 1-7	1-7	D,F#,B	triad	Bm	b3,5,1
+chord	Bm triad 2nd inversion (strings G-B-E)	3-11 2-12 1-10	2-12	F#,B,D	triad	Bm	5,1,b3
+chord	Bm triad 1st inversion (strings A-D-G)	5-5 4-4 3-4	3-4	D,F#,B	triad	Bm	b3,5,1
+chord	Bm triad 2nd inversion (strings A-D-G)	5-9 4-9 3-7	4-9	F#,B,D	triad	Bm	5,1,b3

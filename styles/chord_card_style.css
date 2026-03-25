@@ -1,0 +1,756 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500&display=swap');
+
+@font-face {
+  font-family: 'Yu Mincho';
+  src: url('_yumin.ttf');
+}
+@font-face {
+  font-family: 'Yu Mincho DemiBold';
+  src: url('_yumindb.ttf');
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ─── Light mode ─── */
+.card {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  font-size: 22px;
+  text-align: left;
+  background: #FFFAF0;
+  color: #333;
+  -webkit-text-size-adjust: 100%;
+  --green: #3a9a5a;
+  --red: #c75050;
+  --accent: #4ba9c8;
+  --accent-text: #fff;
+  --c-bor: #c87a08;
+  --c-dom: #7c3aed;
+  --c-ext: #2563eb;
+  --c-chr: #dc2626;
+  --tag-text: #fff;
+}
+
+/* ─── Dark mode — desktop/AnkiMobile ─── */
+.night_mode.card, .night_mode .card {
+  background: #333b45;
+  color: #e6e6e6;
+  --green: #5db87a;
+  --red: #c75a5a;
+  --accent: #4ba9c8;
+  --accent-text: #1a2530;
+  --c-bor: #f59e0b;
+  --c-dom: #a78bfa;
+  --c-ext: #60a5fa;
+  --c-chr: #f87171;
+  --tag-text: #1a2530;
+}
+
+/* ─── Dark mode — AnkiDroid ─── */
+.nightMode.card, .nightMode .card {
+  background: #333b45;
+  color: #e6e6e6;
+  --green: #5db87a;
+  --red: #c75a5a;
+  --accent: #4ba9c8;
+  --accent-text: #1a2530;
+  --c-bor: #f59e0b;
+  --c-dom: #a78bfa;
+  --c-ext: #60a5fa;
+  --c-chr: #f87171;
+  --tag-text: #1a2530;
+}
+
+/* ─── Tag ─── */
+.tag {
+  font-family: 'Yu Mincho', 'Noto Serif JP', serif;
+  color: #585858;
+  font-size: 20px;
+  margin-bottom: 16px;
+  background-color: rgba(0,0,0,0.04);
+  padding: 0px 5px;
+  border-radius: 5px;
+  display: table;
+}
+
+.night_mode .tag, .nightMode .tag {
+  color: #b5b5b5;
+  background-color: #475861;
+}
+
+/* ─── Replay button (hidden — audio plays via song block) ─── */
+.replay-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.04);
+  border: none;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.replay-button:hover, .replay-button:active {
+  opacity: 0.7;
+}
+
+.replay-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.night_mode .replay-button, .nightMode .replay-button {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ─── Song label ─── */
+.song-label {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.night_mode .song-label, .nightMode .song-label {
+  color: #7a8a96;
+}
+
+/* ─── Song block (clickable to play audio) ─── */
+.song-block {
+  background: rgba(0,0,0,0.03);
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 10px;
+  transition: background 0.2s ease;
+}
+
+.song-block:hover, .song-block:active {
+  background: rgba(0,0,0,0.06);
+}
+
+.night_mode .song-block, .nightMode .song-block {
+  background: rgba(255,255,255,0.06);
+}
+
+.night_mode .song-block:hover, .night_mode .song-block:active,
+.nightMode .song-block:hover, .nightMode .song-block:active {
+  background: rgba(255,255,255,0.1);
+}
+
+.song-title {
+  font-family: 'Yu Mincho', 'Noto Serif JP', serif;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.song-artist {
+  font-weight: normal;
+  opacity: 0.5;
+}
+
+.song-section {
+  font-size: 15px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.night_mode .song-section, .nightMode .song-section {
+  color: #7a8a96;
+}
+
+.song-notes {
+  font-size: 13px;
+  color: #777;
+  font-style: italic;
+  background: rgba(0,0,0,0.03);
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 10px;
+}
+
+.night_mode .song-notes, .nightMode .song-notes {
+  background: rgba(255,255,255,0.06);
+  color: #aaa;
+}
+
+/* ─── Key badge ─── */
+.key-badge-section {
+  font-size: 16px;
+  color: #777;
+  margin-bottom: 16px;
+}
+
+.night_mode .key-badge-section, .nightMode .key-badge-section {
+  color: #aaa;
+}
+
+.key-badge {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.06);
+  color: #333;
+  opacity: 0.7;
+}
+
+.night_mode .key-badge, .nightMode .key-badge {
+  background: rgba(255,255,255,0.1);
+  color: #e6e6e6;
+}
+
+/* ─── Numeral section ─── */
+.numeral-section {
+  background: rgba(0,0,0,0.03);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.numeral-section.unlocked {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.night_mode .numeral-section, .nightMode .numeral-section {
+  background: rgba(255,255,255,0.06);
+}
+
+.section-label {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.night_mode .section-label, .nightMode .section-label {
+  color: #7a8a96;
+}
+
+/* ─── Sequence area ─── */
+.sequence-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px;
+  background: rgba(0,0,0,0.03);
+  border: 1px dashed rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.sequence-area.has-items {
+  border-style: solid;
+  border-color: rgba(0,0,0,0.08);
+}
+
+.night_mode .sequence-area, .nightMode .sequence-area {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.night_mode .sequence-area.has-items, .nightMode .sequence-area.has-items {
+  border-color: rgba(255,255,255,0.1);
+}
+
+.placeholder {
+  font-size: 13px;
+  color: #bbb;
+  opacity: 0;
+}
+
+.night_mode .placeholder, .nightMode .placeholder {
+  color: #666;
+}
+
+/* ─── Sequence chips ─── */
+.seq-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.06);
+  color: #333;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.seq-chip:active {
+  opacity: 0.6;
+}
+
+.night_mode .seq-chip, .nightMode .seq-chip {
+  background: rgba(255,255,255,0.1);
+  color: #e6e6e6;
+}
+
+.seq-num {
+  font-size: 10px;
+  opacity: 0.4;
+  background: rgba(0,0,0,0.08);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.night_mode .seq-num, .nightMode .seq-num {
+  background: rgba(255,255,255,0.1);
+}
+
+.seq-chip.correct-chord { background: var(--green); color: #fff; }
+.seq-chip.wrong-chord { background: var(--red); color: #fff; }
+.seq-chip.missing-chord { background: var(--red); color: #fff; opacity: 0.55; }
+
+/* ─── Numeral buttons ─── */
+.numeral-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.numeral-btn {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.04);
+  color: #333;
+  border: 0.5px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 40px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+}
+
+.numeral-btn:active {
+  background: rgba(0,0,0,0.1);
+
+}
+
+.night_mode .numeral-btn, .nightMode .numeral-btn {
+  background: rgba(255,255,255,0.06);
+  color: #e6e6e6;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.night_mode .numeral-btn:active, .nightMode .numeral-btn:active {
+  background: rgba(255,255,255,0.15);
+}
+
+/* ─── Action buttons ─── */
+.actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0.5;
+}
+
+.action-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  min-height: 36px;
+  background: rgba(0,0,0,0.04);
+  color: #888;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-btn:active {
+  opacity: 0.6;
+}
+
+.night_mode .action-btn, .nightMode .action-btn {
+  background: rgba(255,255,255,0.06);
+  color: #7a8a96;
+}
+
+/* ─── Key grid (key identification card type) ─── */
+.key-section { margin-bottom: 24px; }
+.key-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.key-btn {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.04);
+  color: #555;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  text-align: center;
+  transition: all 0.12s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.night_mode .key-btn, .nightMode .key-btn {
+  background: rgba(255,255,255,0.06);
+  color: #b5b5b5;
+  border-color: rgba(255,255,255,0.1);
+}
+
+.key-btn.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
+.key-btn.correct-key { background: var(--green); color: #fff; border-color: var(--green); }
+.key-btn.wrong-key { background: var(--red); color: #fff; border-color: var(--red); }
+.key-btn.disabled { opacity: 0.3; pointer-events: none; }
+
+/* ─── Step indicators ─── */
+.step-indicator {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: #bbb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.night_mode .step-indicator, .nightMode .step-indicator {
+  background: #5c6a75;
+  color: #333b45;
+}
+
+.step-indicator.active { background: var(--accent); color: var(--accent-text); }
+.step-indicator.done { background: var(--green); color: #fff; }
+
+/* ─── Answer section (back side) ─── */
+.answer-divider {
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  margin: 20px 0;
+}
+
+.night_mode .answer-divider, .nightMode .answer-divider {
+  border-top-color: rgba(255,255,255,0.08);
+}
+
+.answer-section {
+  padding: 16px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 10px;
+}
+
+.night_mode .answer-section, .nightMode .answer-section {
+  background: rgba(255,255,255,0.06);
+}
+
+.key-display {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.key-answer {
+  color: var(--accent);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.result-header {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.result-header.correct { color: var(--green); }
+.result-header.incorrect { color: var(--red); }
+
+/* ─── Mapping table ─── */
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.mapping-table th {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #aaa;
+  text-align: left;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.night_mode .mapping-table th, .nightMode .mapping-table th {
+  color: #5c6a75;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.mapping-table td {
+  font-size: 14px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.night_mode .mapping-table td, .nightMode .mapping-table td {
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+
+.mapping-table td:first-child { color: var(--accent); font-weight: 600; }
+.mapping-table td:nth-child(2) { color: #888; }
+.mapping-table td:nth-child(3) { font-weight: 600; }
+
+.night_mode .mapping-table td:nth-child(2), .nightMode .mapping-table td:nth-child(2) {
+  color: #7a8a96;
+}
+
+.correct-prog {
+  font-size: 14px;
+  color: var(--accent);
+  background: rgba(0,0,0,0.03);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.night_mode .correct-prog, .nightMode .correct-prog {
+  background: rgba(255,255,255,0.06);
+}
+
+.sec-hdr td {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  padding: 10px 10px 4px !important;
+  border-bottom: none !important;
+  font-weight: 700;
+}
+
+/* ─── Chord function color coding ─── */
+.mapping-table tr.bor td:nth-child(2), .mapping-table tr.bor td:nth-child(3) { color: var(--c-bor); }
+.mapping-table tr.dom td:nth-child(2), .mapping-table tr.dom td:nth-child(3) { color: var(--c-dom); }
+.mapping-table tr.ext td:nth-child(2), .mapping-table tr.ext td:nth-child(3) { color: var(--c-ext); }
+.mapping-table tr.chr td:nth-child(2), .mapping-table tr.chr td:nth-child(3) { color: var(--c-chr); }
+
+.chord-tag {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 600;
+}
+
+tr.bor .chord-tag { background: var(--c-bor); color: var(--tag-text); }
+tr.dom .chord-tag { background: var(--c-dom); color: var(--tag-text); }
+tr.ext .chord-tag { background: var(--c-ext); color: var(--tag-text); }
+tr.chr .chord-tag { background: var(--c-chr); color: var(--tag-text); }
+
+.chord-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ─── Audio playback ─── */
+.chord-play {
+  cursor: pointer;
+  transition: color 0.15s;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chord-play::after {
+  content: '\00a0\266a';
+  font-size: 10px;
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+
+.chord-play:active { color: var(--accent); }
+.chord-play.playing { color: var(--accent); }
+.chord-play.playing::after { opacity: 1; }
+
+.play-prog-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.play-prog-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─── Image styling ─── */
+img {
+  margin-top: 5px;
+  max-width: 3000px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+img:hover, img:active {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.night_mode img, .nightMode img {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.night_mode img:hover, .night_mode img:active,
+.nightMode img:hover, .nightMode img:active {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+/* ─── Hover states — desktop only ─── */
+@media (hover: hover) {
+  .numeral-btn:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.15);
+  }
+  .night_mode .numeral-btn:hover, .nightMode .numeral-btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.18);
+  }
+  .key-btn:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.15);
+    color: #333;
+  }
+  .night_mode .key-btn:hover, .nightMode .key-btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.18);
+  }
+  .action-btn:hover {
+    background: rgba(0,0,0,0.08);
+  }
+  .night_mode .action-btn:hover, .nightMode .action-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .seq-chip:hover {
+    opacity: 0.7;
+  }
+  .chord-play:hover { color: var(--accent); }
+  .chord-play:hover::after { opacity: 0.8; }
+  .play-prog-btn:hover { opacity: 0.85; }
+}
+
+/* ─── Mobile — small screens ─── */
+@media (max-width: 400px) {
+  .song-label { font-size: 13px; }
+  .song-title { font-size: 18px; }
+  .song-block { margin-bottom: 8px; }
+  .numeral-grid { gap: 6px; }
+  .key-grid { gap: 6px; }
+  .key-btn { padding: 8px 12px; font-size: 13px; min-width: 40px; }
+  .numeral-btn { padding: 8px 12px; font-size: 13px; }
+  .sequence-area { padding: 10px; gap: 6px; }
+  .seq-chip { font-size: 12px; padding: 5px 9px; }
+  .action-btn { padding: 7px 12px; font-size: 11px; }
+  .mapping-table td, .mapping-table th { padding: 4px 8px; font-size: 12px; }
+  .correct-prog { font-size: 12px; padding: 8px 10px; }
+}
+
+/* ─── Key answer card ─── */
+.key-answer-section {
+  border-radius: 0 0 10px 10px;
+  margin-top: 0;
+}
+
+.key-wheel {
+  display: flex;
+  gap: 0;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.wheel-segment {
+  flex: 1;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.25;
+  transition: all 0.2s ease;
+}
+
+.wheel-segment span {
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  opacity: 0.5;
+}
+
+.wheel-segment.wheel-active {
+  opacity: 1;
+  height: 40px;
+  margin-top: -4px;
+}
+
+.wheel-segment.wheel-active span {
+  opacity: 1;
+  font-size: 11px;
+}
+
+.key-reveal {
+  font-size: 56px;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  animation: keyPulse 0.5s ease-out;
+}
+
+@keyframes keyPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}

@@ -1,0 +1,37 @@
+<div class="tag">🎹 Piano</div>
+<div class="piano-prompt">Play this note:</div>
+<div class="piano-name">{{Name}}</div>
+<div class="piano-wrap" id="recall-piano"></div>
+
+<script>
+var PK = window.PK || {};
+// Renderer loaded from front1 context or define inline if needed
+PK.recallPlaced = [];
+
+PK.renderRecallPiano = function() {
+  var keysStr = '{{Keys}}';
+  var targetKeys = PK.parseKeys(keysStr);
+  var targetOct = 4;
+  if (targetKeys.length > 0) { var m = targetKeys[0].match(/(\d)/); if (m) targetOct = parseInt(m[1]); }
+
+  var container = document.getElementById('recall-piano');
+  container.innerHTML = PK.renderPiano({ keys: targetKeys.length > 0 ? targetKeys : ['C4'], placedKeys: PK.recallPlaced, keys: [] });
+
+  // Override: render with no highlights, just placed keys
+  container.innerHTML = PK.renderPiano({ keys: PK.recallPlaced, placedKeys: [] });
+
+  container.querySelectorAll('.white-key, .black-key').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var n = el.getAttribute('data-note');
+      if (!n) return;
+      var idx = PK.recallPlaced.indexOf(n);
+      if (idx >= 0) PK.recallPlaced.splice(idx, 1);
+      else { PK.recallPlaced.push(n); PK.playNote(n); }
+      PK.renderRecallPiano();
+    });
+  });
+};
+
+PK.renderRecallPiano();
+</script>

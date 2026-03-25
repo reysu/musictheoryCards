@@ -1,0 +1,94 @@
+<div class="tag">🎸 Fretboard</div>
+<div class="fretboard-prompt">Place the notes on the fretboard:</div>
+<div class="fretboard-name">{{Name}}</div>
+<div class="recall-grid-wrap" id="recall-grid"></div>
+
+<script>
+// ─── Audio engine ───
+var FB = window.FB || {};
+FB.tuning = [64, 59, 55, 50, 45, 40];
+FB.noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+FB.stringLabels = ['E','B','G','D','A','E'];
+
+FB.getMidi = function(s, f) { return FB.tuning[s - 1] + f; };
+FB.getFreq = function(midi) { return 440 * Math.pow(2, (midi - 69) / 12); };
+
+FB.playNote = function(string, fret) {
+  try {
+    var ctx = FB.ctx || (FB.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var midi = FB.getMidi(string, fret);
+    var freq = FB.getFreq(midi);
+    var now = ctx.currentTime;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    g.connect(ctx.destination);
+    var osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.connect(g);
+    osc.start(now);
+    osc.stop(now + 1.5);
+    var g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.08, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(freq * 2, now);
+    osc2.connect(g2);
+    osc2.start(now);
+    osc2.stop(now + 1.0);
+  } catch(e) {}
+};
+
+FB.parseDots = function(str) {
+  if (!str) return [];
+  return str.split(',').map(function(p) {
+    var parts = p.trim().split('-');
+    return { s: parseInt(parts[0]), f: parseInt(parts[1]) };
+  });
+};
+
+// ─── Recall state ───
+FB.placed = [];
+
+FB.onTap = function(s, f) {
+  // Toggle: if already placed, remove it
+  var idx = -1;
+  FB.placed.forEach(function(d, i) {
+    if (d.s === s && d.f === f) idx = i;
+  });
+  if (idx >= 0) {
+    FB.placed.splice(idx, 1);
+  } else {
+    FB.placed.push({ s: s, f: f });
+    FB.playNote(s, f);
+  }
+  FB.renderRecall();
+};
+
+FB.recallUndo = function() {
+  FB.placed.pop();
+  FB.renderRecall();
+};
+
+FB.recallClear = function() {
+  FB.placed = [];
+  FB.renderRecall();
+};
+
+FB.renderRecall = function() {
+  var container = document.getElementById('recall-grid');
+  container.innerHTML = FB.renderFretboard(FB.placed, { interactive: true, svgId: 'fb-recall' });
+};
+
+// ─── Store placed dots for back side ───
+FB.getPlacedStr = function() {
+  return FB.placed.map(function(d) { return d.s + '-' + d.f; }).join(',');
+};
+
+// Initial render
+FB.renderRecall();
+</script>

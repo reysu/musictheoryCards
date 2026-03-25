@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Card Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: Nunito, sans-serif;
+  background: #eee;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.instrument-tabs {
+  display: flex;
+  gap: 0;
+  padding: 12px 20px 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 10;
+}
+.instrument-tab {
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: #999;
+  border-bottom: 3px solid transparent;
+  transition: all 0.15s;
+}
+.instrument-tab:hover { color: #666; }
+.instrument-tab.active {
+  color: #4ba9c8;
+  border-bottom-color: #4ba9c8;
+}
+iframe {
+  flex: 1;
+  border: none;
+  width: 100%;
+}
+</style>
+</head>
+<body>
+
+<div class="instrument-tabs">
+  <button class="instrument-tab active" onclick="switchTab('fretboard')">🎸 Fretboard</button>
+  <button class="instrument-tab" onclick="switchTab('sheet_music')">🎼 Sheet Music</button>
+  <button class="instrument-tab" onclick="switchTab('piano')">🎹 Piano</button>
+  <button class="instrument-tab" onclick="switchTab('browser')" style="margin-left:auto;">📋 All Cards</button>
+</div>
+
+<iframe id="preview-frame" src="fretboard_preview.html"></iframe>
+
+<script>
+var pages = {
+  fretboard: 'fretboard_preview.html',
+  sheet_music: 'sheet_music_preview.html',
+  piano: 'piano_preview.html',
+  browser: 'card_browser.html'
+};
+
+function switchTab(name) {
+  document.querySelectorAll('.instrument-tab').forEach(function(el, i) {
+    var keys = Object.keys(pages);
+    el.classList.toggle('active', keys[i] === name);
+  });
+  document.getElementById('preview-frame').src = pages[name];
+}
+</script>
+</body>
+</html>

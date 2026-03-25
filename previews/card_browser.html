@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Card Browser</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Nunito, -apple-system, sans-serif; background: #f5f5f7; color: #1d1d1f; padding: 20px; }
+
+.toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(12px);
+  border-radius: 12px; padding: 14px 18px;
+  margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.toolbar input[type="text"] {
+  flex: 1; min-width: 180px; padding: 8px 14px;
+  border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px;
+  outline: none; font-family: Nunito;
+}
+.toolbar input[type="text"]:focus { border-color: #4ba9c8; }
+.btn {
+  padding: 8px 16px; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  font-family: Nunito; white-space: nowrap;
+}
+.btn-secondary { background: #e8e8ed; color: #1d1d1f; }
+.btn-secondary:hover { background: #d2d2d7; }
+.btn-primary { background: #4ba9c8; color: #fff; }
+.btn-primary:hover { background: #3a8fb0; }
+.btn-export { background: #34c759; color: #fff; }
+.btn-export:hover { background: #2db84e; }
+.stats { font-size: 13px; color: #86868b; min-width: 120px; text-align: right; }
+.stats strong { color: #1d1d1f; }
+
+.filters {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 18px;
+  background: #fff; border-radius: 12px; margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.filter-chip {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1.5px solid #d2d2d7; background: #fff;
+  transition: all 0.2s; user-select: none; font-family: Nunito;
+}
+.filter-chip.active { background: #4ba9c8; color: #fff; border-color: #4ba9c8; }
+.filter-chip:hover:not(.active) { border-color: #4ba9c8; color: #4ba9c8; }
+.filter-chip .count { opacity: 0.7; margin-left: 4px; }
+
+table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  background: #fff; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+thead th {
+  background: #fafafa; padding: 10px 14px; text-align: left;
+  font-size: 11px; font-weight: 600; color: #86868b;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid #e8e8ed; position: sticky; top: 56px; z-index: 10;
+}
+thead th:first-child { width: 36px; text-align: center; }
+tbody tr { transition: background 0.15s; cursor: pointer; }
+tbody tr:hover { background: #f0f5ff; }
+tbody tr.excluded { opacity: 0.35; }
+tbody td { padding: 8px 14px; border-bottom: 1px solid #f0f0f5; font-size: 13px; vertical-align: middle; }
+tbody td:first-child { text-align: center; }
+input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #4ba9c8; }
+
+.instrument-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.instrument-badge.guitar { background: #fff3e0; color: #e65100; }
+.instrument-badge.sheet { background: #e8f5e9; color: #2e7d32; }
+.instrument-badge.piano { background: #e3f2fd; color: #1565c0; }
+.instrument-badge.ear { background: #fce4ec; color: #880e4f; }
+
+.type-badge {
+  display: inline-block; padding: 2px 6px; border-radius: 4px;
+  font-size: 10px; font-weight: 600;
+}
+.type-badge.note { background: #f3e5f5; color: #7b1fa2; }
+.type-badge.chord { background: #e8eaf6; color: #283593; }
+.type-badge.scale { background: #e0f7fa; color: #00695c; }
+.type-badge.arpeggio { background: #fce4ec; color: #c62828; }
+
+.preview-panel {
+  position: fixed; right: 20px; top: 20px; width: 420px;
+  background: #fff; border-radius: 12px; padding: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15); z-index: 200;
+  display: none; max-height: 90vh; overflow-y: auto;
+}
+.preview-panel.show { display: block; }
+.preview-close {
+  position: absolute; top: 8px; right: 12px; cursor: pointer;
+  font-size: 18px; color: #999; background: none; border: none;
+}
+
+@media (max-width: 800px) {
+  .preview-panel { position: fixed; left: 10px; right: 10px; width: auto; top: auto; bottom: 10px; max-height: 50vh; }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="Search cards...">
+  <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+  <button class="btn btn-secondary" onclick="deselectAll()">Deselect All</button>
+  <button class="btn btn-export" onclick="exportSelected()">Export Selected</button>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="filters" id="filters"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="select-all-cb" onchange="toggleAll(this.checked)"></th>
+      <th>Deck</th>
+      <th>Category</th>
+      <th>Name</th>
+      <th>Key</th>
+      <th>Shape</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody id="table-body"></tbody>
+</table>
+
+<div class="preview-panel" id="preview-panel">
+  <button class="preview-close" onclick="closePreview()">&times;</button>
+  <div id="preview-content"></div>
+</div>
+
+<script>
+var allCards = [];
+var selected = new Set();
+var activeFilters = new Set();
+
+// Load all data files
+async function loadData() {
+  var files = [
+    { url: '../data/fretboard_full_cards.txt', instrument: 'guitar', fields: ['type','name','dots','root','notes','intervals','shape','key'] },
+    { url: '../data/sheet_music_cards.txt', instrument: 'sheet', fields: ['note','clef','tags'], hasHeader: true },
+    { url: '../data/piano_cards.txt', instrument: 'piano', fields: ['type','name','keys','root','notes'] },
+    { url: '../data/ear_training_cards.txt', instrument: 'ear', fields: ['type','name','referenceNote','targetNote','interval','rootString','rootFret','targetString','targetFret'] },
+  ];
+
+  for (var fi = 0; fi < files.length; fi++) {
+    var f = files[fi];
+    try {
+      var resp = await fetch(f.url);
+      var text = await resp.text();
+      var lines = text.trim().split('\n');
+      var start = f.hasHeader ? 1 : 0;
+      for (var i = start; i < lines.length; i++) {
+        var cols = lines[i].split('\t');
+        if (cols.length < 2) continue;
+        var card = { instrument: f.instrument, _raw: lines[i] };
+        f.fields.forEach(function(field, j) { card[field] = (cols[j] || '').trim(); });
+
+        // Normalize fields
+        if (f.instrument === 'sheet') {
+          card.type = 'note';
+          card.name = card.note;
+          card.key = '';
+          card.shape = card.clef;
+        }
+        if (!card.type) card.type = 'note';
+        if (!card.name) card.name = '';
+        if (!card.key) card.key = '';
+        if (!card.shape) card.shape = '';
+
+        // Compute deck and category
+        if (f.instrument === 'guitar') {
+          card.deck = 'Guitar';
+          if (card.type === 'note') card.category = 'Fretboard Notes';
+          else if (card.type === 'scale' && card.name.indexOf('Pentatonic') >= 0) card.category = 'Pentatonics';
+          else if (card.type === 'scale' && (card.name.indexOf('BB King') >= 0 || card.name.indexOf('Albert King') >= 0 || card.name.indexOf('SRV') >= 0)) card.category = 'Blues Boxes';
+          else if (card.type === 'scale') card.category = 'Scales';
+          else if (card.type === 'chord' && card.name.indexOf('triad') >= 0) card.category = 'Triads';
+          else if (card.type === 'chord') card.category = 'Chords';
+          else if (card.type === 'arpeggio' && card.shape && card.shape.indexOf('ii-V-I') >= 0) card.category = 'ii-V-I Patterns';
+          else if (card.type === 'arpeggio') card.category = 'Arpeggios';
+          else card.category = 'Guitar';
+        } else if (f.instrument === 'sheet') {
+          card.deck = 'Sheet Music';
+          card.category = 'Note Reading';
+        } else if (f.instrument === 'ear') {
+          card.deck = 'Ear Training';
+          card.category = 'Intervals';
+          card.name = card.name || (card.interval + ' from ' + card.referenceNote);
+        } else {
+          card.deck = 'Piano';
+          if (card.type === 'note') card.category = 'Piano Notes';
+          else if (card.type === 'chord') card.category = 'Piano Chords';
+          else if (card.type === 'scale') card.category = 'Piano Scales';
+          else card.category = 'Piano';
+        }
+
+        card.id = allCards.length;
+        allCards.push(card);
+        selected.add(card.id);
+      }
+    } catch(e) { console.log('Could not load', f.url, e); }
+  }
+  buildFilters();
+  renderTable();
+}
+
+function buildFilters() {
+  // Deck filters
+  var decks = {};
+  var cats = {};
+  allCards.forEach(function(c) {
+    decks[c.deck] = (decks[c.deck] || 0) + 1;
+    cats[c.category] = (cats[c.category] || 0) + 1;
+  });
+
+  var el = document.getElementById('filters');
+
+  // Deck filters first
+  ['Guitar','Sheet Music','Piano','Ear Training'].forEach(function(deck) {
+    if (!decks[deck]) return;
+    var chip = document.createElement('div');
+    chip.className = 'filter-chip';
+    chip.style.fontWeight = '700';
+    chip.innerHTML = deck + '<span class="count">' + decks[deck] + '</span>';
+    chip.onclick = function() {
+      chip.classList.toggle('active');
+      var key = 'deck:' + deck;
+      if (activeFilters.has(key)) activeFilters.delete(key);
+      else activeFilters.add(key);
+      renderTable();
+    };
+    el.appendChild(chip);
+  });
+
+  // Separator
+  var sep = document.createElement('div');
+  sep.style.cssText = 'width:1px;height:24px;background:#ddd;margin:0 4px;';
+  el.appendChild(sep);
+
+  // Category filters
+  var catOrder = ['Fretboard Notes','Pentatonics','Blues Boxes','Scales','Triads','Chords','Arpeggios','ii-V-I Patterns','Note Reading','Piano Notes','Piano Chords','Piano Scales','Intervals'];
+  catOrder.forEach(function(cat) {
+    if (!cats[cat]) return;
+    var chip = document.createElement('div');
+    chip.className = 'filter-chip';
+    chip.innerHTML = cat + '<span class="count">' + cats[cat] + '</span>';
+    chip.onclick = function() {
+      chip.classList.toggle('active');
+      var key = 'cat:' + cat;
+      if (activeFilters.has(key)) activeFilters.delete(key);
+      else activeFilters.add(key);
+      renderTable();
+    };
+    el.appendChild(chip);
+  });
+}
+
+function matchesFilters(card) {
+  if (activeFilters.size === 0) return true;
+  var hasDeckFilter = false, matchesDeck = false;
+  var hasCatFilter = false, matchesCat = false;
+  activeFilters.forEach(function(f) {
+    if (f.startsWith('deck:')) {
+      hasDeckFilter = true;
+      if (card.deck === f.slice(5)) matchesDeck = true;
+    } else if (f.startsWith('cat:')) {
+      hasCatFilter = true;
+      if (card.category === f.slice(4)) matchesCat = true;
+    }
+  });
+  if (hasDeckFilter && !matchesDeck) return false;
+  if (hasCatFilter && !matchesCat) return false;
+  return true;
+}
+
+function renderTable() {
+  var query = document.getElementById('search').value.toLowerCase();
+  var tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  var shown = 0;
+
+  allCards.forEach(function(card) {
+    if (!matchesFilters(card)) return;
+    var searchStr = (card.name + ' ' + card.type + ' ' + card.key + ' ' + card.shape + ' ' + card.instrument).toLowerCase();
+    if (query && searchStr.indexOf(query) < 0) return;
+
+    shown++;
+    var tr = document.createElement('tr');
+    var isSelected = selected.has(card.id);
+
+    var deckClass = card.deck === 'Guitar' ? 'guitar' : card.deck === 'Sheet Music' ? 'sheet' : 'piano';
+
+    tr.innerHTML = ''
+      + '<td><input type="checkbox" ' + (isSelected ? 'checked' : '') + ' data-id="' + card.id + '"></td>'
+      + '<td><span class="instrument-badge ' + deckClass + '">' + card.deck + '</span></td>'
+      + '<td><span class="type-badge ' + card.type + '">' + card.category + '</span></td>'
+      + '<td><strong>' + card.name + '</strong></td>'
+      + '<td>' + (card.key || '-') + '</td>'
+      + '<td>' + (card.shape || '-') + '</td>'
+      + '<td style="font-size:11px;color:#999;">' + (card.intervals || card.notes || card.dots || '').substring(0, 40) + '</td>';
+
+    tr.querySelector('input').addEventListener('change', function(e) {
+      e.stopPropagation();
+      if (e.target.checked) selected.add(card.id);
+      else selected.delete(card.id);
+      updateStats();
+    });
+
+    tr.addEventListener('click', function(e) {
+      if (e.target.tagName === 'INPUT') return;
+      showPreview(card);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  updateStats(shown);
+}
+
+function updateStats(shown) {
+  var el = document.getElementById('stats');
+  if (shown === undefined) shown = '?';
+  el.innerHTML = '<strong>' + selected.size + '</strong> selected / <strong>' + shown + '</strong> shown / ' + allCards.length + ' total';
+}
+
+function selectAll() {
+  allCards.forEach(function(c) { selected.add(c.id); });
+  renderTable();
+}
+
+function deselectAll() {
+  selected.clear();
+  renderTable();
+}
+
+function toggleAll(checked) {
+  if (checked) selectAll();
+  else deselectAll();
+}
+
+// ─── Renderers ───
+var CHROMATIC = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var TUNING = {1:'E',2:'B',3:'G',4:'D',5:'A',6:'E'};
+var stringNames = ['E','B','G','D','A','E'];
+var noteColors = {'C':'#DC4040','C#':'#6A1FCC','D':'#E8C820','D#':'#9898A0','E':'#6AADBD','F':'#9B1B1B','F#':'#7B2DB8','G':'#E08030','G#':'#B85EB0','A':'#2E8B57','A#':'#A85A30','B':'#4169E1'};
+var intervalColors = {'1':'#4ba9c8','R':'#4ba9c8','3':'#e8a030','b3':'#c87a30','5':'#3a9a5a','b5':'#9b59b6','#5':'#6A1FCC','b7':'#c75050','7':'#9b59b6','2':'#7a8a96','4':'#5a8abf','6':'#2E8B57','b6':'#6A1FCC'};
+function noteAt(s,f){var b=CHROMATIC.indexOf(TUNING[s]);return CHROMATIC[(b+f)%12];}
+function needsDarkText(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(0.299*r+0.587*g+0.114*b)>160;}
+
+function renderFretboardSVG(dotsStr, rootStr, intervalsStr, labelsStr, showIntervals, useNoteColors) {
+  var dots = dotsStr ? dotsStr.split(/[\s,]+/).filter(Boolean).map(function(p){var a=p.trim().split('-');return{s:+a[0],f:+a[1]};}) : [];
+  var root = rootStr ? (function(){var a=rootStr.trim().split('-');return{s:+a[0],f:+a[1]};})() : null;
+  var intervals = intervalsStr ? intervalsStr.split(',').map(function(s){return s.trim();}) : [];
+  var labels = labelsStr ? labelsStr.split(',').map(function(s){return s.trim();}) : [];
+
+  var w=500,h=140,numS=6,numF=12;
+  var labelW=22,nutX=labelW+24,nutW=3,fretStart=nutX+nutW+2;
+  var fretW=(w-fretStart)/numF,stringGap=h/(numS+1);
+
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;">';
+  // Nut
+  svg+='<rect x="'+nutX+'" y="'+(stringGap*0.7)+'" width="'+nutW+'" height="'+(stringGap*numS-stringGap*0.4)+'" fill="#666" rx="1" opacity="0.5"/>';
+  // Fret wires
+  for(var f=1;f<=numF;f++){var x=fretStart+fretW*f;svg+='<line x1="'+x+'" y1="'+(stringGap*0.7)+'" x2="'+x+'" y2="'+(stringGap*numS+stringGap*0.3)+'" stroke="#999" stroke-width="0.8" opacity="0.25"/>';}
+  // Fret numbers
+  for(var f=1;f<=numF;f++){var x=fretStart+fretW*(f-0.5);svg+='<text x="'+x+'" y="'+(h-2)+'" text-anchor="middle" font-size="7" fill="#aaa" font-family="Nunito,sans-serif">'+f+'</text>';}
+  // Dot markers
+  [3,5,7,9].forEach(function(d){var x=fretStart+fretW*(d-0.5);var my=(stringGap*3+stringGap*4)/2;svg+='<circle cx="'+x+'" cy="'+my+'" r="3" fill="#ccc" opacity="0.3"/>';});
+  var x12=fretStart+fretW*11.5;var my=(stringGap*3+stringGap*4)/2;
+  svg+='<circle cx="'+x12+'" cy="'+(my-8)+'" r="3" fill="#ccc" opacity="0.3"/>';
+  svg+='<circle cx="'+x12+'" cy="'+(my+8)+'" r="3" fill="#ccc" opacity="0.3"/>';
+  // Strings
+  for(var s=1;s<=numS;s++){var y=stringGap*s;svg+='<line x1="'+nutX+'" y1="'+y+'" x2="'+w+'" y2="'+y+'" stroke="#555" stroke-width="'+(0.5+s*0.2)+'" opacity="0.25"/>';}
+  // String labels
+  for(var s=1;s<=numS;s++){var y=stringGap*s;svg+='<text x="'+(labelW*0.5)+'" y="'+(y+3)+'" text-anchor="middle" font-size="9" fill="#aaa" font-family="Nunito,sans-serif">'+stringNames[s-1]+'</text>';}
+  // Dots
+  dots.forEach(function(d,i){
+    var cy=stringGap*d.s;
+    var cx=d.f===0?(labelW+nutX)/2+14:fretStart+fretW*(d.f-0.5);
+    var isRoot=root&&root.s===d.s&&root.f===d.f;
+    var r=8;
+    var noteName=noteAt(d.s,d.f);
+    var col=noteColors[noteName]||'#4ba9c8';
+    svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'"/>';
+    if(isRoot)svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r+3)+'" fill="none" stroke="'+col+'" stroke-width="1.5" opacity="0.5"/>';
+    var lbl=showIntervals&&intervals[i]?intervals[i]:(labels[i]||'');
+    if(lbl)svg+='<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle" font-size="'+(lbl.length>1?7:9)+'" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">'+lbl+'</text>';
+  });
+  svg+='</svg>';
+  return svg;
+}
+
+function renderStaffSVG(noteStr, clef, showLabel) {
+  var treblePos={'C4':-2,'D4':-1,'E4':0,'F4':1,'G4':2,'A4':3,'B4':4,'C5':5,'D5':6,'E5':7,'F5':8,'G5':9};
+  var bassPos={'B1':-4,'C2':-3,'D2':-2,'E2':-1,'F2':0,'G2':1,'A2':2,'B2':3,'C3':4,'D3':5,'E3':6,'F3':7,'G3':8,'A3':9,'B3':10,'C4':11,'D4':12};
+  var positions=clef==='treble'?treblePos:bassPos;
+  var pos=positions[noteStr];if(pos===undefined)return'<div style="color:#999;">Unknown note</div>';
+
+  var w=340,h=140,staffTop=35,lineGap=14;
+  var staffLeft=60,staffRight=w-25,noteX=(staffLeft+staffRight)/2;
+  function posToY(p){return staffTop+4*lineGap-p*(lineGap/2);}
+
+  var svg='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;">';
+  for(var i=0;i<5;i++){var y=staffTop+i*lineGap;svg+='<line x1="'+staffLeft+'" y1="'+y+'" x2="'+staffRight+'" y2="'+y+'" stroke="#999" stroke-width="1" opacity="0.35"/>';}
+  // Clef
+  if(clef==='treble')svg+='<text x="'+(staffLeft+3)+'" y="'+(staffTop+lineGap*4+3)+'" font-size="'+(lineGap*5.5)+'" fill="#555" font-family="serif" opacity="0.6">\u{1D11E}</text>';
+  else svg+='<text x="'+(staffLeft+3)+'" y="'+(staffTop+lineGap*3)+'" font-size="'+(lineGap*3.5)+'" fill="#555" font-family="serif" opacity="0.6">\u{1D122}</text>';
+  // Ledger lines
+  var ny=posToY(pos);var lw=24;
+  if(pos<=-2)for(var p=-2;p>=pos;p-=2){var ly=posToY(p);svg+='<line x1="'+(noteX-lw/2)+'" y1="'+ly+'" x2="'+(noteX+lw/2)+'" y2="'+ly+'" stroke="#999" stroke-width="1" opacity="0.35"/>';}
+  if(pos>=10)for(var p=10;p<=pos;p+=2){var ly=posToY(p);svg+='<line x1="'+(noteX-lw/2)+'" y1="'+ly+'" x2="'+(noteX+lw/2)+'" y2="'+ly+'" stroke="#999" stroke-width="1" opacity="0.35"/>';}
+  // Notehead
+  var pitch=noteStr.replace(/\d/g,'');
+  var noteCol=showLabel?(noteColors[pitch]||'#4ba9c8'):'#4ba9c8';
+  svg+='<ellipse cx="'+noteX+'" cy="'+ny+'" rx="7" ry="5" fill="'+noteCol+'" transform="rotate(-15,'+noteX+','+ny+')"/>';
+  // Stem
+  if(pos<5)svg+='<line x1="'+(noteX+6.5)+'" y1="'+ny+'" x2="'+(noteX+6.5)+'" y2="'+(ny-30)+'" stroke="'+noteCol+'" stroke-width="1.3"/>';
+  else svg+='<line x1="'+(noteX-6.5)+'" y1="'+ny+'" x2="'+(noteX-6.5)+'" y2="'+(ny+30)+'" stroke="'+noteCol+'" stroke-width="1.3"/>';
+  if(showLabel){var pitch=noteStr.replace(/\d/g,'');svg+='<text x="'+noteX+'" y="'+(ny+3)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">'+pitch+'</text>';}
+  svg+='</svg>';
+  return svg;
+}
+
+function renderPianoSVG(keysStr, showLabel, useNoteColors) {
+  var noteOrder=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var isBlack={'C#':1,'D#':1,'F#':1,'G#':1,'A#':1};
+  var keys=keysStr?keysStr.split(',').map(function(s){return s.trim();}):[];
+  var targetOct=4;
+  if(keys[0]){var m=keys[0].match(/(\d)/);if(m)targetOct=+m[1];}
+  var startOct=Math.max(1,targetOct-1),endOct=Math.min(7,startOct+2);
+
+  var whiteW=22,whiteH=90,blackW=14,blackH=56;
+  var whiteKeys=[],allKeys=[],highlightSet={};
+  keys.forEach(function(k){highlightSet[k]=1;});
+  for(var oct=startOct;oct<=endOct;oct++)noteOrder.forEach(function(n){var ns=n+oct;allKeys.push(ns);if(!isBlack[n])whiteKeys.push(ns);});
+  var nextC='C'+(endOct+1);allKeys.push(nextC);whiteKeys.push(nextC);
+
+  var totalW=whiteKeys.length*whiteW,h=whiteH+22;
+  var svg='<svg viewBox="0 0 '+totalW+' '+h+'" style="width:100%;">';
+  var wx=0,whitePos={};
+  whiteKeys.forEach(function(ns){
+    whitePos[ns]=wx;
+    var nPitch=ns.replace(/\d/g,'');
+    var fill=highlightSet[ns]?(useNoteColors&&noteColors[nPitch]?noteColors[nPitch]:'#4ba9c8'):'#fff';
+    svg+='<rect x="'+wx+'" y="0" width="'+(whiteW-1)+'" height="'+whiteH+'" fill="'+fill+'" stroke="#bbb" stroke-width="0.5"/>';
+    var pitch=ns.replace(/\d/,''),oct=ns.replace(/\D/g,'');
+    if(pitch==='C')svg+='<text x="'+(wx+whiteW/2)+'" y="'+(whiteH+14)+'" text-anchor="middle" font-size="8" fill="#aaa" font-family="Nunito,sans-serif">C'+oct+'</text>';
+    if(showLabel&&highlightSet[ns])svg+='<text x="'+(wx+whiteW/2)+'" y="'+(whiteH-6)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">'+pitch+'</text>';
+    wx+=whiteW;
+  });
+  allKeys.forEach(function(ns){
+    var pitch=ns.replace(/\d/,'');if(!isBlack[pitch])return;
+    var oct=ns.replace(/\D/g,'');
+    var prev=noteOrder[noteOrder.indexOf(pitch)-1]+oct;
+    if(whitePos[prev]===undefined)return;
+    var bx=whitePos[prev]+whiteW-blackW/2-0.5;
+    var bPitch=ns.replace(/\d/g,'');
+    var fill=highlightSet[ns]?(useNoteColors&&noteColors[bPitch]?noteColors[bPitch]:'#4ba9c8'):'#222';
+    svg+='<rect x="'+bx+'" y="0" width="'+blackW+'" height="'+blackH+'" fill="'+fill+'" rx="0 0 2 2"/>';
+    if(showLabel&&highlightSet[ns])svg+='<text x="'+(bx+blackW/2)+'" y="'+(blackH-6)+'" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">'+pitch+'</text>';
+  });
+  svg+='</svg>';
+  return svg;
+}
+
+function showPreview(card) {
+  var panel = document.getElementById('preview-panel');
+  var content = document.getElementById('preview-content');
+  var pitchClass = card.name.replace(/\d.*/,'').replace(/\s.*/,'').replace(/m$/,'');
+  var color = noteColors[pitchClass] || '#4ba9c8';
+  var dark = needsDarkText(color);
+  var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
+  var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
+
+  var html = '';
+
+  // ─── FRONT ───
+  html += '<div style="font-size:11px;color:#999;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Front</div>';
+  html += '<div style="background:#FFFAF0;border-radius:10px;padding:14px;margin-bottom:16px;">';
+  html += '<div style="color:rgba(0,0,0,0.45);font-size:14px;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:5px;display:table;margin-bottom:10px;">';
+
+  if (card.instrument === 'guitar') {
+    html += '\uD83C\uDFB8 Fretboard</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What is this?</div>';
+    html += renderFretboardSVG(card.dots, card.root, null, null, false);
+  } else if (card.instrument === 'sheet') {
+    html += '\uD83C\uDFBC Sheet Music</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What note is this?</div>';
+    html += renderStaffSVG(card.name, card.shape || 'treble', false);
+  } else if (card.instrument === 'ear') {
+    html += '\uD83D\uDC42 Ear Training</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What interval is this?</div>';
+    var refDot = card.rootString + '-' + card.rootFret;
+    html += renderFretboardSVG(refDot, refDot, null, null, false);
+  } else {
+    html += '\uD83C\uDFB9 Piano</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What is this?</div>';
+    html += renderPianoSVG(card.keys, false);
+  }
+  html += '</div>';
+
+  // ─── BACK ───
+  html += '<div style="font-size:11px;color:#999;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Back</div>';
+  html += '<div style="background:#FFFAF0;border-radius:10px;padding:14px;">';
+  html += '<div style="color:rgba(0,0,0,0.45);font-size:14px;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:5px;display:table;margin-bottom:10px;">';
+
+  if (card.instrument === 'guitar') {
+    html += '\uD83C\uDFB8 Fretboard</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What is this?</div>';
+    var showInt = card.intervals && card.intervals.length > 0;
+    var isNoteCard = card.type === 'note';
+    html += renderFretboardSVG(card.dots, card.root, showInt ? card.intervals : null, showInt ? null : card.notes, showInt, isNoteCard);
+  } else if (card.instrument === 'sheet') {
+    html += '\uD83C\uDFBC Sheet Music</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What note is this?</div>';
+    html += renderStaffSVG(card.name, card.shape || 'treble', true);
+  } else if (card.instrument === 'ear') {
+    html += '\uD83D\uDC42 Ear Training</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What interval is this?</div>';
+    var refDot = card.rootString + '-' + card.rootFret;
+    var tgtDot = card.targetString + '-' + card.targetFret;
+    var bothDots = refDot + ' ' + tgtDot;
+    var refNote = card.referenceNote ? card.referenceNote.replace(/\d/g,'') : '';
+    var tgtNote = card.targetNote ? card.targetNote.replace(/\d/g,'') : '';
+    html += renderFretboardSVG(bothDots, refDot, card.interval ? '1,' + card.interval : null, null, true);
+  } else {
+    html += '\uD83C\uDFB9 Piano</div>';
+    html += '<div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:8px;">What is this?</div>';
+    html += renderPianoSVG(card.keys, true, true);
+  }
+
+  // Answer section
+  html += '<div style="background:'+color+';border-radius:10px;margin-top:12px;padding:18px;text-align:center;cursor:pointer;">';
+  if (card.instrument === 'ear') {
+    html += '<div style="font-size:11px;color:'+subCol+';margin-bottom:4px;">Interval</div>';
+    html += '<div style="font-size:36px;font-weight:800;color:'+textCol+';">'+(card.interval||card.name)+'</div>';
+    html += '<div style="font-size:12px;color:'+subCol+';margin-top:2px;">'+(card.referenceNote||'')+' \u2192 '+(card.targetNote||'')+'</div>';
+  } else {
+    html += '<div style="font-size:11px;color:'+subCol+';margin-bottom:4px;">Note</div>';
+    html += '<div style="font-size:36px;font-weight:800;color:'+textCol+';">'+card.name+'</div>';
+    if (card.key) html += '<div style="font-size:12px;color:'+subCol+';margin-top:2px;">Key: '+card.key+'</div>';
+    if (card.shape) html += '<div style="font-size:12px;color:'+subCol+';margin-top:2px;">'+card.shape+'</div>';
+  }
+  html += '</div>';
+
+  html += '</div>';
+
+  content.innerHTML = html;
+  panel.classList.add('show');
+}
+
+function closePreview() {
+  document.getElementById('preview-panel').classList.remove('show');
+}
+
+function exportSelected() {
+  // Group by instrument
+  var groups = { guitar: [], sheet: [], piano: [] };
+  allCards.forEach(function(c) {
+    if (!selected.has(c.id)) return;
+    groups[c.instrument].push(c);
+  });
+
+  var output = '';
+
+  // Guitar export
+  if (groups.guitar.length > 0) {
+    output += '# FRETBOARD CARDS (' + groups.guitar.length + ' entries)\n';
+    output += '# Type\\tName\\tDots\\tRoot\\tNotes\\tIntervals\\tShape\\tKey\n';
+    groups.guitar.forEach(function(c) {
+      output += [c.type, c.name, c.dots||'', c.root||'', c.notes||'', c.intervals||'', c.shape||'', c.key||''].join('\t') + '\n';
+    });
+    output += '\n';
+  }
+
+  // Sheet music export
+  if (groups.sheet.length > 0) {
+    output += '# SHEET MUSIC CARDS (' + groups.sheet.length + ' entries)\n';
+    output += '# Note\\tClef\\tTags\n';
+    groups.sheet.forEach(function(c) {
+      output += [c.note||c.name, c.clef||c.shape, 'Sheet_Music'].join('\t') + '\n';
+    });
+    output += '\n';
+  }
+
+  // Piano export
+  if (groups.piano.length > 0) {
+    output += '# PIANO CARDS (' + groups.piano.length + ' entries)\n';
+    output += '# Type\\tName\\tKeys\\tRoot\\tNotes\n';
+    groups.piano.forEach(function(c) {
+      output += [c.type, c.name, c.keys||'', c.root||'', c.notes||''].join('\t') + '\n';
+    });
+  }
+
+  // Download
+  var blob = new Blob([output], { type: 'text/plain' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'music_cards_export.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Search on type
+document.getElementById('search').addEventListener('input', function() { renderTable(); });
+
+loadData();
+</script>
+</body>
+</html>

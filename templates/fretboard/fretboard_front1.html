@@ -1,0 +1,199 @@
+<div class="tag">🎸 Fretboard</div>
+<div class="fretboard-prompt">What is this?</div>
+<div id="fretboard-front"></div>
+
+<script>
+// ─── Audio engine ───
+var FB = window.FB || {};
+FB.tuning = [64, 59, 55, 50, 45, 40];
+FB.noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+FB.stringLabels = ['E','B','G','D','A','E'];
+
+FB.stringOpen = ['E','B','G','D','A','E'];
+FB.noteColors = {'C':'#DC4040','C#':'#6A1FCC','D':'#E8C820','D#':'#9898A0','E':'#6AADBD','F':'#9B1B1B','F#':'#7B2DB8','G':'#E08030','G#':'#B85EB0','A':'#2E8B57','A#':'#A85A30','B':'#4169E1'};
+FB.noteAt = function(s, f) { var base = FB.noteNames.indexOf(FB.stringOpen[s-1]); return FB.noteNames[(base + f) % 12]; };
+FB.getMidi = function(s, f) { return FB.tuning[s - 1] + f; };
+FB.getFreq = function(midi) { return 440 * Math.pow(2, (midi - 69) / 12); };
+
+FB.playNote = function(string, fret) {
+  try {
+    var ctx = FB.ctx || (FB.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var midi = FB.getMidi(string, fret);
+    var freq = FB.getFreq(midi);
+    var now = ctx.currentTime;
+    // Triangle + soft overtone
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    g.connect(ctx.destination);
+    var osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.connect(g);
+    osc.start(now);
+    osc.stop(now + 1.5);
+    // Soft harmonic
+    var g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.08, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(freq * 2, now);
+    osc2.connect(g2);
+    osc2.start(now);
+    osc2.stop(now + 1.0);
+  } catch(e) {}
+};
+
+// ─── Parse dots ───
+FB.parseDots = function(str) {
+  if (!str) return [];
+  return str.split(',').map(function(p) {
+    var parts = p.trim().split('-');
+    return { s: parseInt(parts[0]), f: parseInt(parts[1]) };
+  });
+};
+
+// ─── Fretboard SVG renderer ───
+FB.renderFretboard = function(dots, opts) {
+  opts = opts || {};
+  var root = opts.root || null;
+  var labels = opts.labels || null; // array of note names
+  var showLabels = opts.showLabels || false;
+  var interactive = opts.interactive || false;
+  var resultDots = opts.resultDots || null; // {correct:[], wrong:[], missing:[]}
+
+  var numStrings = 6, numFrets = 12;
+  var w = 540, h = 150;
+  var labelW = 24, nutX = labelW + 24, nutW = 4;
+  var fretStart = nutX + nutW + 2;
+  var fretW = (w - fretStart) / numFrets;
+  var stringGap = h / (numStrings + 1);
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;max-width:540px;" id="' + (opts.svgId || 'fb-svg') + '">';
+
+  // Nut
+  svg += '<rect x="' + nutX + '" y="' + (stringGap * 0.7) + '" width="' + nutW + '" height="' + (stringGap * numStrings - stringGap * 0.4) + '" fill="var(--text-primary)" rx="1" opacity="0.6"/>';
+
+  // Fret wires
+  for (var f = 1; f <= numFrets; f++) {
+    var x = fretStart + fretW * f;
+    svg += '<line x1="' + x + '" y1="' + (stringGap * 0.7) + '" x2="' + x + '" y2="' + (stringGap * numStrings + stringGap * 0.3) + '" stroke="var(--text-secondary)" stroke-width="1" opacity="0.3"/>';
+  }
+
+  // Fret numbers
+  for (var f = 1; f <= numFrets; f++) {
+    var x = fretStart + fretW * (f - 0.5);
+    svg += '<text x="' + x + '" y="' + (h - 2) + '" text-anchor="middle" font-size="8" fill="var(--text-secondary)" font-family="Nunito,sans-serif" opacity="0.5">' + f + '</text>';
+  }
+
+  // Dot markers (3,5,7,9,12)
+  var markers = [3, 5, 7, 9];
+  var midY = (stringGap * 3 + stringGap * 4) / 2;
+  markers.forEach(function(d) {
+    var x = fretStart + fretW * (d - 0.5);
+    svg += '<circle cx="' + x + '" cy="' + midY + '" r="3.5" fill="var(--text-secondary)" opacity="0.15"/>';
+  });
+  var x12 = fretStart + fretW * 11.5;
+  svg += '<circle cx="' + x12 + '" cy="' + (midY - 10) + '" r="3.5" fill="var(--text-secondary)" opacity="0.15"/>';
+  svg += '<circle cx="' + x12 + '" cy="' + (midY + 10) + '" r="3.5" fill="var(--text-secondary)" opacity="0.15"/>';
+
+  // Strings
+  for (var s = 1; s <= numStrings; s++) {
+    var y = stringGap * s;
+    var thickness = 0.6 + (s * 0.25);
+    svg += '<line x1="' + nutX + '" y1="' + y + '" x2="' + w + '" y2="' + y + '" stroke="var(--text-primary)" stroke-width="' + thickness + '" opacity="0.3"/>';
+  }
+
+  // String labels
+  for (var s = 1; s <= numStrings; s++) {
+    var y = stringGap * s;
+    svg += '<text x="' + (labelW * 0.5) + '" y="' + (y + 3.5) + '" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-family="Nunito,sans-serif" opacity="0.5">' + FB.stringLabels[s-1] + '</text>';
+  }
+
+  // Draw dots
+  if (dots && dots.length > 0) {
+    dots.forEach(function(d, i) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 : fretStart + fretW * (d.f - 0.5);
+      var isRoot = root && root.s === d.s && root.f === d.f;
+      var r = 10;
+      var noteName = FB.noteAt(d.s, d.f);
+      var fill = showLabels ? (FB.noteColors[noteName] || 'var(--accent)') : 'var(--accent)';
+
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '"/>';
+      if (isRoot && dots.length > 1) {
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r + 4) + '" fill="none" stroke="' + fill + '" stroke-width="1.5" opacity="0.5"/>';
+      }
+
+      // Pulsing ring for single notes (no label)
+      if (!showLabels && dots.length === 1) {
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="var(--accent)" stroke-width="2" opacity="0.4">';
+        svg += '<animate attributeName="r" from="' + r + '" to="' + (r + 10) + '" dur="2s" repeatCount="indefinite"/>';
+        svg += '<animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/>';
+        svg += '</circle>';
+      }
+
+      if (showLabels && labels && labels[i]) {
+        svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + labels[i] + '</text>';
+      }
+
+    });
+  }
+
+  // Result overlay dots
+  if (resultDots) {
+    if (resultDots.correct) resultDots.correct.forEach(function(d) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 : fretStart + fretW * (d.f - 0.5);
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="10" class="dot-correct"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Nunito,sans-serif">✓</text>';
+    });
+    if (resultDots.wrong) resultDots.wrong.forEach(function(d) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 : fretStart + fretW * (d.f - 0.5);
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="10" class="dot-wrong"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Nunito,sans-serif">✗</text>';
+    });
+    if (resultDots.missing) resultDots.missing.forEach(function(d) {
+      var cy = stringGap * d.s;
+      var cx = d.f === 0 ? (labelW + nutX) / 2 : fretStart + fretW * (d.f - 0.5);
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="10" class="dot-missing"/>';
+    });
+  }
+
+  // Tap zones — rendered last so they sit on top of dots
+  for (var s = 1; s <= numStrings; s++) {
+    for (var f = 0; f <= numFrets; f++) {
+      var cy = stringGap * s;
+      var cx = f === 0 ? (labelW + nutX) / 2 : fretStart + fretW * (f - 0.5);
+      svg += '<circle class="tap-zone" cx="' + cx + '" cy="' + cy + '" r="' + (fretW * 0.4) + '" fill="transparent" data-string="' + s + '" data-fret="' + f + '" onclick="FB.onTap(' + s + ',' + f + ')"/>';
+    }
+  }
+
+  svg += '</svg>';
+  return svg;
+};
+
+// ─── Render front (Recognition) ───
+(function() {
+  var dotsStr = '{{Dots}}';
+  var rootStr = '{{Root}}';
+  var typeStr = '{{Type}}';
+
+  var dots = FB.parseDots(dotsStr);
+  var root = rootStr ? FB.parseDots(rootStr)[0] : null;
+
+  var container = document.getElementById('fretboard-front');
+
+  // For single notes, just show the dot with pulse
+  container.innerHTML = FB.renderFretboard(dots, { root: root, svgId: 'fb-front' });
+
+  // Default onTap just plays audio at tapped position
+  FB.onTap = function(s, f) {
+    FB.playNote(s, f);
+  };
+})();
+</script>

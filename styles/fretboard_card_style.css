@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ─── Light mode ─── */
+.card {
+  font-family: Nunito, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 22px;
+  text-align: left;
+  background: #FFFAF0;
+  color: #333;
+  -webkit-text-size-adjust: 100%;
+  --green: #3a9a5a;
+  --red: #c75050;
+  --accent: #4ba9c8;
+  --accent-text: #fff;
+  --text-primary: #333;
+  --text-secondary: rgba(0,0,0,0.45);
+  --bg-subtle: rgba(0,0,0,0.06);
+  --bg-chip: rgba(0,0,0,0.12);
+  --fret-wire: rgba(0,0,0,0.3);
+  --string-color: rgba(0,0,0,0.3);
+}
+
+/* ─── Dark mode — desktop/AnkiMobile ─── */
+.night_mode.card, .night_mode .card {
+  background: #333b45;
+  color: #e6e6e6;
+  --green: #5db87a;
+  --red: #c75a5a;
+  --accent: #4ba9c8;
+  --accent-text: #1a2530;
+  --text-primary: #e6e6e6;
+  --text-secondary: rgba(255,255,255,0.45);
+  --bg-subtle: rgba(255,255,255,0.08);
+  --bg-chip: rgba(255,255,255,0.15);
+  --fret-wire: rgba(255,255,255,0.2);
+  --string-color: rgba(255,255,255,0.3);
+}
+
+/* ─── Dark mode — AnkiDroid ─── */
+.nightMode.card, .nightMode .card {
+  background: #333b45;
+  color: #e6e6e6;
+  --green: #5db87a;
+  --red: #c75a5a;
+  --accent: #4ba9c8;
+  --accent-text: #1a2530;
+  --text-primary: #e6e6e6;
+  --text-secondary: rgba(255,255,255,0.45);
+  --bg-subtle: rgba(255,255,255,0.08);
+  --bg-chip: rgba(255,255,255,0.15);
+  --fret-wire: rgba(255,255,255,0.2);
+  --string-color: rgba(255,255,255,0.3);
+}
+
+/* ─── Tag ─── */
+.tag {
+  color: var(--text-secondary);
+  font-size: 16px;
+  background-color: var(--bg-subtle);
+  padding: 2px 8px;
+  border-radius: 5px;
+  display: table;
+  margin-bottom: 12px;
+}
+
+/* ─── Prompt ─── */
+.fretboard-prompt {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.fretboard-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+/* ─── Answer section ─── */
+.answer-section {
+  padding: 14px 16px;
+  background: var(--bg-subtle);
+  border-radius: 10px;
+  margin-top: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.answer-section:hover, .answer-section:active {
+  filter: brightness(1.1);
+}
+
+@keyframes keyPulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.note-reveal {
+  font-size: 56px;
+  font-weight: 800;
+  color: #fff;
+  animation: keyPulse 0.5s ease-out;
+}
+
+.note-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 8px;
+}
+
+.note-detail-colored {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+
+.tap-hint {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 6px;
+}
+
+.note-answer {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.note-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.shape-info {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ─── Replay button ─── */
+.replay-btn {
+  display: inline-block;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+  margin-top: 8px;
+  padding: 4px 12px;
+  background: var(--bg-subtle);
+  border-radius: 6px;
+}
+.replay-btn:hover { opacity: 0.7; }
+
+/* ─── Recall card: tap grid ─── */
+.recall-grid-wrap {
+  position: relative;
+  margin-top: 6px;
+}
+
+.recall-grid-wrap svg {
+  width: 100%;
+  max-width: 540px;
+}
+
+.tap-zone {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.tap-zone:hover { opacity: 0.8; }
+
+.placed-dot {
+  pointer-events: none;
+}
+
+/* ─── Recall actions ─── */
+.recall-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  opacity: 0.5;
+}
+
+.recall-action-btn {
+  font-family: Nunito, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  min-height: 36px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recall-action-btn:active { opacity: 0.6; }
+
+@media (hover: hover) {
+  .recall-action-btn:hover { opacity: 0.7; }
+}
+
+/* ─── Result overlay dots ─── */
+.dot-correct { fill: var(--green); }
+.dot-wrong { fill: var(--red); }
+.dot-missing { fill: none; stroke: var(--red); stroke-width: 2; stroke-dasharray: 4 2; }
+
+/* ─── Notes list on back ─── */
+.notes-list {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 400px) {
+  .fretboard-name { font-size: 20px; }
+  .note-answer { font-size: 36px; }
+  .recall-action-btn { padding: 7px 12px; font-size: 11px; }
+}

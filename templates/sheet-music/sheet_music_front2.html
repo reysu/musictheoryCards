@@ -1,0 +1,60 @@
+<div class="tag">🎼 Sheet Music</div>
+<div class="staff-prompt">Place this note on the staff:</div>
+<div class="staff-name">{{Name}}</div>
+<div id="recall-staff"></div>
+
+<script>
+var SM = window.SM || {};
+SM.noteNames = ['C','D','E','F','G','A','B'];
+SM.midiBase = {'C':0,'D':2,'E':4,'F':5,'G':7,'A':9,'B':11};
+SM.noteToMidi = {};
+for (var o=0;o<=8;o++) SM.noteNames.forEach(function(n){SM.noteToMidi[n+o]=12+o*12+SM.midiBase[n];});
+
+SM.playNote = function(noteStr) {
+  try {
+    var ctx = SM.ctx || (SM.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    if (ctx.state === 'suspended') ctx.resume();
+    var midi = SM.noteToMidi[noteStr] || 60;
+    var freq = 440 * Math.pow(2, (midi - 69) / 12);
+    var now = ctx.currentTime;
+    var g = ctx.createGain(); g.gain.setValueAtTime(0.3, now); g.gain.exponentialRampToValueAtTime(0.001, now + 1.5); g.connect(ctx.destination);
+    var osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.setValueAtTime(freq, now); osc.connect(g); osc.start(now); osc.stop(now + 1.5);
+    var g2 = ctx.createGain(); g2.gain.setValueAtTime(0.08, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 1.0); g2.connect(ctx.destination);
+    var osc2 = ctx.createOscillator(); osc2.type = 'triangle'; osc2.frequency.setValueAtTime(freq * 2, now); osc2.connect(g2); osc2.start(now); osc2.stop(now + 1.0);
+  } catch(e) {}
+};
+
+SM.treblePos = {'C4':-2,'D4':-1,'E4':0,'F4':1,'G4':2,'A4':3,'B4':4,'C5':5,'D5':6,'E5':7,'F5':8,'G5':9};
+SM.bassPos = {'B1':-4,'C2':-3,'D2':-2,'E2':-1,'F2':0,'G2':1,'A2':2,'B2':3,'C3':4,'D3':5,'E3':6,'F3':7,'G3':8,'A3':9,'B3':10,'C4':11,'D4':12};
+SM.treblePosToNote = {}; SM.bassPosToNote = {};
+Object.keys(SM.treblePos).forEach(function(k){SM.treblePosToNote[SM.treblePos[k]]=k;});
+Object.keys(SM.bassPos).forEach(function(k){SM.bassPosToNote[SM.bassPos[k]]=k;});
+SM.posToNote = function(pos, clef) { return clef==='treble'?SM.treblePosToNote[pos]:SM.bassPosToNote[pos]; };
+SM.getStaffPos = function(noteStr, clef) { return clef==='treble'?SM.treblePos[noteStr]:SM.bassPos[noteStr]; };
+
+SM.recallPlaced = null;
+
+SM.renderRecall = function() {
+  var clef = '{{Clef}}';
+  var container = document.getElementById('recall-staff');
+  container.innerHTML = SM.renderStaff({ clef: clef, placedPos: SM.recallPlaced, interactive: true });
+
+  container.querySelectorAll('.tap-zone').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var pos = parseInt(el.getAttribute('data-pos'));
+      var note = SM.posToNote(pos, clef);
+      if (!note) return;
+      if (SM.recallPlaced === pos) {
+        SM.recallPlaced = null;
+      } else {
+        SM.recallPlaced = pos;
+        SM.playNote(note);
+      }
+      SM.renderRecall();
+    });
+  });
+};
+
+SM.renderRecall();
+</script>
