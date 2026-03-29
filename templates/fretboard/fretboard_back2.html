@@ -109,7 +109,8 @@ FB.parseDots = FB.parseDots || function(str) {
     return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
   }
   var nameStr = '{{Name}}';
-  var noteName = nameStr.trim();
+  // Extract note name (e.g. "F#" from "F# on String 1")
+  var noteName = nameStr.trim().split(' ')[0];
   var color = noteColors[noteName] || '#4ba9c8';
   var dark = needsDarkText(color);
   var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
