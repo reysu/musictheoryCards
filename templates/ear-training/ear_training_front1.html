@@ -131,7 +131,7 @@ EAR.renderFretboard = function(opts) {
   var fretW = (w - fretStart) / numFrets;
   var stringGap = h / (numStrings + 1);
 
-  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;max-width:540px;">';
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;">';
 
   svg += '<rect x="' + nutX + '" y="' + (stringGap * 0.7) + '" width="' + nutW + '" height="' + (stringGap * numStrings - stringGap * 0.4) + '" fill="var(--text-primary)" rx="1" opacity="0.6"/>';
 

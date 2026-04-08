@@ -58,8 +58,8 @@ FB.playNote = FB.playNote || function(string, fret) {
 
 FB.parseDots = FB.parseDots || function(str) {
   if (!str) return [];
-  return str.split(',').map(function(p) {
-    var parts = p.trim().split('-');
+  return str.trim().split(/[\s,]+/).filter(function(p) { return p.indexOf('-') >= 0; }).map(function(p) {
+    var parts = p.split('-');
     return { s: parseInt(parts[0]), f: parseInt(parts[1]) };
   });
 };
@@ -217,23 +217,30 @@ if (!FB.renderFretboard) {
     return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
   }
 
-  // Extract note name from Name field (e.g. "A# on String 1" → "A#")
+  // Extract root note for color, show full name in reveal
   var nameStr = '{{Name}}';
+  var keyStr = '{{Key}}';
   var noteMatch = nameStr.match(/^([A-G][#b]?)/);
-  var noteName = noteMatch ? noteMatch[1] : nameStr.trim();
-  var color = noteColors[noteName] || '#4ba9c8';
+  var rootNote = noteMatch ? noteMatch[1] : '';
+  // Use Key field for color if available (e.g. "Dm" → root "D"), fallback to Name
+  var keyMatch = keyStr ? keyStr.match(/^([A-G][#b]?)/) : null;
+  var colorRoot = (keyMatch ? keyMatch[1] : rootNote) || '';
+  var color = noteColors[colorRoot] || '#4ba9c8';
   var dark = needsDarkText(color);
   var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
   var subCol = dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)';
   var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
+
+  // Display full key name (e.g. "Dm") or note name (e.g. "A#")
+  var displayName = keyStr || rootNote || nameStr.trim();
 
   var section = document.getElementById('recall-answer');
   if (section) section.style.background = color;
 
   var headerEl = document.getElementById('recall-result-header');
   if (headerEl) {
-    headerEl.innerHTML = '<div class="note-label" style="color:' + subCol + ';">Note</div>'
-      + '<div class="note-reveal" style="color:' + textCol + ';">' + noteName + '</div>';
+    headerEl.innerHTML = '<div class="note-label" style="color:' + subCol + ';">Answer</div>'
+      + '<div class="note-reveal" style="color:' + textCol + ';">' + displayName + '</div>';
   }
 
   var notesEl = document.getElementById('recall-notes-info');

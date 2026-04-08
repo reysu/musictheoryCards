@@ -56,8 +56,8 @@ FB.playNote = function(string, fret) {
 
 FB.parseDots = function(str) {
   if (!str) return [];
-  return str.split(',').map(function(p) {
-    var parts = p.trim().split('-');
+  return str.trim().split(/[\s,]+/).filter(function(p) { return p.indexOf('-') >= 0; }).map(function(p) {
+    var parts = p.split('-');
     return { s: parseInt(parts[0]), f: parseInt(parts[1]) };
   });
 };

@@ -14,6 +14,34 @@ var SM = window.SM || {};
 SM.noteNames = SM.noteNames || ['C','D','E','F','G','A','B'];
 SM.midiBase = SM.midiBase || {'C':0,'D':2,'E':4,'F':5,'G':7,'A':9,'B':11};
 if (!SM.noteToMidi) { SM.noteToMidi = {}; for (var o=0;o<=8;o++) SM.noteNames.forEach(function(n){SM.noteToMidi[n+o]=12+o*12+SM.midiBase[n];}); }
+
+SM.treblePos = SM.treblePos || {'C4':-2,'D4':-1,'E4':0,'F4':1,'G4':2,'A4':3,'B4':4,'C5':5,'D5':6,'E5':7,'F5':8,'G5':9};
+SM.bassPos = SM.bassPos || {'B1':-4,'C2':-3,'D2':-2,'E2':-1,'F2':0,'G2':1,'A2':2,'B2':3,'C3':4,'D3':5,'E3':6,'F3':7,'G3':8,'A3':9,'B3':10,'C4':11,'D4':12};
+if (!SM.treblePosToNote) { SM.treblePosToNote = {}; Object.keys(SM.treblePos).forEach(function(k){SM.treblePosToNote[SM.treblePos[k]]=k;}); }
+if (!SM.bassPosToNote) { SM.bassPosToNote = {}; Object.keys(SM.bassPos).forEach(function(k){SM.bassPosToNote[SM.bassPos[k]]=k;}); }
+SM.posToNote = SM.posToNote || function(pos,clef) { return clef==='treble'?SM.treblePosToNote[pos]:SM.bassPosToNote[pos]; };
+SM.getStaffPos = SM.getStaffPos || function(noteStr,clef) { return clef==='treble'?SM.treblePos[noteStr]:SM.bassPos[noteStr]; };
+
+if (!SM.renderStaff) {
+  SM.renderStaff = function(opts) {
+    opts = opts || {};
+    var clef = opts.clef || 'treble', notePos = opts.notePos, showLabel = opts.showLabel || false, noteLabel = opts.noteLabel || '', resultNote = opts.resultNote || null, placedPos = opts.placedPos;
+    var w = 400, h = 160, staffTop = 40, lineGap = 16, staffLeft = 70, staffRight = w - 30, noteX = (staffLeft + staffRight) / 2;
+    var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;">';
+    for (var i = 0; i < 5; i++) { var y = staffTop + i * lineGap; svg += '<line x1="'+staffLeft+'" y1="'+y+'" x2="'+staffRight+'" y2="'+y+'" stroke="var(--staff-line,var(--text-secondary))" stroke-width="1.2"/>'; }
+    if (clef === 'treble') svg += '<text x="'+(staffLeft+4)+'" y="'+(staffTop+lineGap*4+4)+'" font-size="'+(lineGap*5.8)+'" fill="var(--text-primary)" font-family="\'Times New Roman\',serif" opacity="0.65">\uD834\uDD1E</text>';
+    else svg += '<text x="'+(staffLeft+4)+'" y="'+(staffTop+lineGap*3)+'" font-size="'+(lineGap*3.8)+'" fill="var(--text-primary)" font-family="\'Times New Roman\',serif" opacity="0.65">\uD834\uDD22</text>';
+    function posToY(pos) { return staffTop + 4 * lineGap - pos * (lineGap / 2); }
+    function drawLedgers(pos) { var r='',lw=28; if(pos<=-2){for(var p=-2;p>=pos;p-=2){var ly=posToY(p);r+='<line x1="'+(noteX-lw/2)+'" y1="'+ly+'" x2="'+(noteX+lw/2)+'" y2="'+ly+'" stroke="var(--staff-line,var(--text-secondary))" stroke-width="1.2"/>';}} if(pos>=10){for(var p=10;p<=pos;p+=2){var ly=posToY(p);r+='<line x1="'+(noteX-lw/2)+'" y1="'+ly+'" x2="'+(noteX+lw/2)+'" y2="'+ly+'" stroke="var(--staff-line,var(--text-secondary))" stroke-width="1.2"/>';}} return r; }
+    function drawNote(pos, fill, label, pulse) { var ny=posToY(pos),r=drawLedgers(pos); r+='<ellipse cx="'+noteX+'" cy="'+ny+'" rx="8" ry="6" fill="'+fill+'" transform="rotate(-15,'+noteX+','+ny+')"/>'; if(pulse){r+='<ellipse cx="'+noteX+'" cy="'+ny+'" rx="8" ry="6" fill="none" stroke="'+fill+'" stroke-width="2" opacity="0.4" transform="rotate(-15,'+noteX+','+ny+')"><animate attributeName="rx" from="8" to="18" dur="2s" repeatCount="indefinite"/><animate attributeName="ry" from="6" to="14" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/></ellipse>';} var stemUp=pos<5; if(stemUp) r+='<line x1="'+(noteX+7.5)+'" y1="'+ny+'" x2="'+(noteX+7.5)+'" y2="'+(ny-35)+'" stroke="'+fill+'" stroke-width="1.5"/>'; else r+='<line x1="'+(noteX-7.5)+'" y1="'+ny+'" x2="'+(noteX-7.5)+'" y2="'+(ny+35)+'" stroke="'+fill+'" stroke-width="1.5"/>'; if(label) r+='<text x="'+noteX+'" y="'+(ny+4)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">'+label+'</text>'; return r; }
+    if (notePos !== undefined && notePos !== null) svg += drawNote(notePos, 'var(--accent)', showLabel ? noteLabel : '', !showLabel);
+    if (placedPos !== undefined && placedPos !== null) svg += drawNote(placedPos, 'var(--accent)', '', false);
+    if (resultNote) { if(resultNote.correct!==null&&resultNote.correct!==undefined){var cy=posToY(resultNote.correct);svg+=drawLedgers(resultNote.correct);svg+='<ellipse cx="'+noteX+'" cy="'+cy+'" rx="8" ry="6" fill="var(--green)" transform="rotate(-15,'+noteX+','+cy+')"/>';svg+='<text x="'+noteX+'" y="'+(cy+4)+'" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">\u2713</text>';} if(resultNote.wrong!==null&&resultNote.wrong!==undefined){var cy=posToY(resultNote.wrong);svg+='<ellipse cx="'+noteX+'" cy="'+cy+'" rx="8" ry="6" fill="var(--red)" transform="rotate(-15,'+noteX+','+cy+')"/>';svg+='<text x="'+noteX+'" y="'+(cy+4)+'" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">\u2717</text>';} if(resultNote.missing!==null&&resultNote.missing!==undefined){var cy=posToY(resultNote.missing);svg+=drawLedgers(resultNote.missing);svg+='<ellipse cx="'+noteX+'" cy="'+cy+'" rx="8" ry="6" fill="none" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 2" transform="rotate(-15,'+noteX+','+cy+')"/>';} }
+    var positions = clef==='treble'?SM.treblePos:SM.bassPos, allPos=Object.values(positions), minP=Math.min.apply(null,allPos), maxP=Math.max.apply(null,allPos);
+    for (var p=minP;p<=maxP;p++) { var ty=posToY(p); svg+='<rect class="tap-zone" x="'+staffLeft+'" y="'+(ty-lineGap/4)+'" width="'+(staffRight-staffLeft)+'" height="'+(lineGap/2)+'" fill="transparent" data-pos="'+p+'"/>'; svg+='<ellipse class="ghost-note" cx="'+noteX+'" cy="'+ty+'" rx="8" ry="6" fill="var(--accent)" transform="rotate(-15,'+noteX+','+ty+')"/>'; }
+    svg += '</svg>'; return svg;
+  };
+}
 SM.playNote = SM.playNote || function(noteStr) {
   try {
     var ctx = SM.ctx || (SM.ctx = new (window.AudioContext || window.webkitAudioContext)());
