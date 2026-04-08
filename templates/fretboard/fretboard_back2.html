@@ -1,7 +1,7 @@
 <div class="tag">🎸 Fretboard</div>
 <div class="fretboard-prompt">Place the notes on the fretboard:</div>
 <div class="fretboard-name">{{Name}}</div>
-<div id="recall-result-fb"></div>
+<div class="recall-grid-wrap" id="recall-result-fb"></div>
 
 <div class="answer-section" id="recall-answer" onclick="FB.replayCorrect()" style="cursor:pointer;text-align:center;padding:24px;">
   <div id="recall-result-header"></div>
@@ -11,11 +11,17 @@
 </div>
 
 <script>
-// ─── Audio engine ───
+// ─── Audio engine (fallbacks if front didn't load) ───
 var FB = window.FB || {};
 FB.tuning = FB.tuning || [64, 59, 55, 50, 45, 40];
 FB.noteNames = FB.noteNames || ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 FB.stringLabels = FB.stringLabels || ['E','B','G','D','A','E'];
+
+FB.noteColors = FB.noteColors || {
+  'C':'#DC4040','C#':'#6A1FCC','D':'#E8C820','D#':'#9898A0',
+  'E':'#6AADBD','F':'#9B1B1B','F#':'#7B2DB8','G':'#E08030',
+  'G#':'#B85EB0','A':'#2E8B57','A#':'#A85A30','B':'#4169E1'
+};
 
 FB.getMidi = FB.getMidi || function(s, f) { return FB.tuning[s - 1] + f; };
 FB.getFreq = FB.getFreq || function(midi) { return 440 * Math.pow(2, (midi - 69) / 12); };
@@ -58,16 +64,121 @@ FB.parseDots = FB.parseDots || function(str) {
   });
 };
 
+// ─── Fretboard renderer (fallback if front didn't define it) ───
+if (!FB.renderFretboard) {
+  FB.renderFretboard = function(dots, opts) {
+    opts = opts || {};
+    var interactive = opts.interactive || false;
+    var svgId = opts.svgId || 'fb';
+    var resultDots = opts.resultDots || null;
+
+    var numFrets = 12, numStrings = 6;
+    var padL = 28, padR = 8, padT = 12, padB = 22;
+    var strGap = 20, fretW = 38, nutW = 4;
+    var fbW = numFrets * fretW, fbH = (numStrings - 1) * strGap;
+    var w = padL + nutW + fbW + padR, h = padT + fbH + padB;
+
+    var svg = '<svg id="' + svgId + '" viewBox="0 0 ' + w + ' ' + h + '">';
+    svg += '<rect x="' + padL + '" y="' + padT + '" width="' + nutW + '" height="' + fbH + '" fill="var(--text-primary)" opacity="0.5" rx="1"/>';
+
+    for (var f = 1; f <= numFrets; f++) {
+      var x = padL + nutW + f * fretW;
+      svg += '<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (padT + fbH) + '" stroke="var(--fret-wire)" stroke-width="1.5"/>';
+    }
+
+    [3,5,7,9].forEach(function(f) {
+      var mx = padL + nutW + (f - 0.5) * fretW;
+      svg += '<circle cx="' + mx + '" cy="' + (padT + fbH / 2) + '" r="4" fill="var(--text-secondary)" opacity="0.12"/>';
+    });
+    var mx12 = padL + nutW + 11.5 * fretW;
+    svg += '<circle cx="' + mx12 + '" cy="' + (padT + strGap * 1.5) + '" r="4" fill="var(--text-secondary)" opacity="0.12"/>';
+    svg += '<circle cx="' + mx12 + '" cy="' + (padT + strGap * 3.5) + '" r="4" fill="var(--text-secondary)" opacity="0.12"/>';
+
+    for (var s = 0; s < numStrings; s++) {
+      var y = padT + s * strGap;
+      svg += '<line x1="' + padL + '" y1="' + y + '" x2="' + (padL + nutW + fbW) + '" y2="' + y + '" stroke="var(--string-color)" stroke-width="' + (1 + s * 0.25) + '"/>';
+      svg += '<text x="' + (padL - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" font-weight="600" fill="var(--text-secondary)" font-family="Nunito,sans-serif">' + FB.stringLabels[s] + '</text>';
+    }
+
+    for (var f = 1; f <= numFrets; f++) {
+      var fx = padL + nutW + (f - 0.5) * fretW;
+      svg += '<text x="' + fx + '" y="' + (padT + fbH + 15) + '" text-anchor="middle" font-size="8" fill="var(--text-secondary)" opacity="0.4" font-family="Nunito,sans-serif">' + f + '</text>';
+    }
+
+    function dotColor(s, f) {
+      var midi = FB.getMidi(s, f);
+      return FB.noteColors[FB.noteNames[midi % 12]] || 'var(--accent)';
+    }
+    function dotLabel(s, f) {
+      return FB.noteNames[FB.getMidi(s, f) % 12];
+    }
+
+    var showColors = opts.showColors || false;
+    dots.forEach(function(d) {
+      var y = padT + (d.s - 1) * strGap;
+      var color = showColors ? dotColor(d.s, d.f) : 'var(--accent)';
+      var label = showColors ? dotLabel(d.s, d.f) : '';
+      if (d.f === 0) {
+        var ox = padL - 14;
+        svg += '<circle cx="' + ox + '" cy="' + y + '" r="7" fill="' + color + '"/>';
+        if (label) svg += '<text x="' + ox + '" y="' + (y + 3.5) + '" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + label + '</text>';
+      } else {
+        var x = padL + nutW + (d.f - 0.5) * fretW;
+        svg += '<circle class="placed-dot" cx="' + x + '" cy="' + y + '" r="9" fill="' + color + '"/>';
+        if (label) svg += '<text class="placed-dot" x="' + x + '" y="' + (y + 3.5) + '" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + label + '</text>';
+      }
+    });
+
+    if (resultDots) {
+      if (resultDots.wrong) resultDots.wrong.forEach(function(d) {
+        var y = padT + (d.s - 1) * strGap;
+        var x = d.f === 0 ? padL - 14 : padL + nutW + (d.f - 0.5) * fretW;
+        var r = d.f === 0 ? 7 : 9;
+        var color = dotColor(d.s, d.f);
+        svg += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + color + '"/>';
+        svg += '<text x="' + x + '" y="' + (y + 3.5) + '" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + dotLabel(d.s, d.f) + '</text>';
+        svg += '<circle cx="' + x + '" cy="' + y + '" r="' + (r + 3) + '" fill="none" stroke="var(--red)" stroke-width="2" stroke-dasharray="4 2"/>';
+      });
+      var answer = (resultDots.correct || []).concat(resultDots.missing || []);
+      answer.forEach(function(d) {
+        var y = padT + (d.s - 1) * strGap;
+        var x = d.f === 0 ? padL - 14 : padL + nutW + (d.f - 0.5) * fretW;
+        var r = d.f === 0 ? 7 : 9;
+        var color = dotColor(d.s, d.f);
+        svg += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + color + '"/>';
+        svg += '<text x="' + x + '" y="' + (y + 3.5) + '" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="Nunito,sans-serif">' + dotLabel(d.s, d.f) + '</text>';
+      });
+    }
+
+    if (interactive) {
+      for (var si = 1; si <= numStrings; si++) {
+        for (var fi = 0; fi <= numFrets; fi++) {
+          var ty = padT + (si - 1) * strGap;
+          var tx = fi === 0 ? 0 : padL + nutW + (fi - 1) * fretW;
+          var tw = fi === 0 ? padL + nutW : fretW;
+          svg += '<rect class="tap-zone" x="' + tx + '" y="' + (ty - strGap / 2) + '" width="' + tw + '" height="' + strGap + '" fill="transparent" data-s="' + si + '" data-f="' + fi + '"/>';
+        }
+      }
+    }
+
+    svg += '</svg>';
+    if (interactive) {
+      svg += '<div class="recall-actions">';
+      svg += '<button class="recall-action-btn" onclick="FB.recallUndo()">\u21a9 Undo</button>';
+      svg += '<button class="recall-action-btn" onclick="FB.recallClear()">Clear</button>';
+      svg += '</div>';
+    }
+    return svg;
+  };
+}
+
 // ─── Compare placed vs correct ───
 (function() {
   var dotsStr = '{{Dots}}';
-  var rootStr = '{{Root}}';
   var notesStr = '{{Notes}}';
   var shapeStr = '{{Shape}}';
 
   var correctDots = FB.parseDots(dotsStr);
-  var root = rootStr ? FB.parseDots(rootStr)[0] : null;
-  var labels = notesStr ? notesStr.split(',').map(function(n) { return n.trim(); }) : null;
   var placed = FB.placed || [];
 
   function dotKey(d) { return d.s + '-' + d.f; }
@@ -90,27 +201,26 @@ FB.parseDots = FB.parseDots || function(str) {
   });
 
   var container = document.getElementById('recall-result-fb');
-  container.innerHTML = FB.renderFretboard([], {
-    root: root,
-    svgId: 'fb-result',
-    resultDots: { correct: correct, wrong: wrong, missing: missing }
-  });
+  if (container) {
+    container.innerHTML = FB.renderFretboard([], {
+      svgId: 'fb-result',
+      resultDots: { correct: correct, wrong: wrong, missing: missing }
+    });
+  }
 
-  // Color the answer section
-  var noteColors = {
-    'C':'#DC4040', 'C#':'#6A1FCC', 'D':'#E8C820', 'D#':'#9898A0',
-    'E':'#6AADBD', 'F':'#9B1B1B', 'F#':'#7B2DB8', 'G':'#E08030',
-    'G#':'#B85EB0', 'A':'#2E8B57', 'A#':'#A85A30', 'B':'#4169E1'
-  };
+  // ─── Color the answer section with Scriabin note color ───
+  var noteColors = FB.noteColors;
   function needsDarkText(hex) {
     var r = parseInt(hex.slice(1,3), 16);
     var g = parseInt(hex.slice(3,5), 16);
     var b = parseInt(hex.slice(5,7), 16);
     return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
   }
+
+  // Extract note name from Name field (e.g. "A# on String 1" → "A#")
   var nameStr = '{{Name}}';
-  // Extract note name (e.g. "F#" from "F# on String 1")
-  var noteName = nameStr.trim().split(' ')[0];
+  var noteMatch = nameStr.match(/^([A-G][#b]?)/);
+  var noteName = noteMatch ? noteMatch[1] : nameStr.trim();
   var color = noteColors[noteName] || '#4ba9c8';
   var dark = needsDarkText(color);
   var textCol = dark ? 'rgba(0,0,0,0.7)' : '#fff';
@@ -118,33 +228,32 @@ FB.parseDots = FB.parseDots || function(str) {
   var hintCol = dark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.35)';
 
   var section = document.getElementById('recall-answer');
-  section.style.background = color;
+  if (section) section.style.background = color;
 
-  // Result header — just show the name, same as recognition back
   var headerEl = document.getElementById('recall-result-header');
-  headerEl.innerHTML = '<div class="note-label" style="color:' + subCol + ';">Note</div>'
-    + '<div class="note-reveal" style="color:' + textCol + ';">' + noteName + '</div>';
+  if (headerEl) {
+    headerEl.innerHTML = '<div class="note-label" style="color:' + subCol + ';">Note</div>'
+      + '<div class="note-reveal" style="color:' + textCol + ';">' + noteName + '</div>';
+  }
 
-  // Notes info
   var notesEl = document.getElementById('recall-notes-info');
-  if (labels) {
-    notesEl.textContent = 'Notes: ' + labels.join(' · ');
+  if (notesEl && notesStr) {
+    var labels = notesStr.split(',').map(function(n) { return n.trim(); });
+    notesEl.textContent = 'Notes: ' + labels.join(' \u00b7 ');
     notesEl.style.color = subCol;
     notesEl.style.fontSize = '13px';
   }
 
-  // Shape
   var shapeEl = document.getElementById('recall-shape-info');
-  if (shapeStr) {
+  if (shapeEl && shapeStr) {
     shapeEl.textContent = shapeStr;
     shapeEl.style.color = subCol;
     shapeEl.style.fontSize = '13px';
   }
 
-  // Tap hint
-  document.getElementById('recall-tap-hint').style.color = hintCol;
+  var hintEl = document.getElementById('recall-tap-hint');
+  if (hintEl) hintEl.style.color = hintCol;
 
-  // Store for replay
   FB._correctDots = correctDots;
 })();
 
